@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Member Progress | Trainer | Smart Fit</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="trainer_layout.css">
+</head>
+
+<body data-active="progress">
+<div class="app d-flex">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">SMART FIT</div>
+    <div class="hello">Hi, <span id="trainerName">trainer</span></div>
+
+    <a class="nav-item" data-key="dashboard" href="dashboard.html">
+      <span class="nav-ico chip-sky"><i class="bi bi-speedometer2"></i></span>
+      <span class="nav-label">Dashboard</span>
+    </a>
+
+    <a class="nav-item" data-key="members" href="members.html">
+      <span class="nav-ico chip-violet"><i class="bi bi-people"></i></span>
+      <span class="nav-label">Members & Assign</span>
+    </a>
+
+    <a class="nav-item" data-key="workouts" href="manage_workouts.html">
+      <span class="nav-ico chip-amber"><i class="bi bi-activity"></i></span>
+      <span class="nav-label">Workouts</span>
+    </a>
+
+    <a class="nav-item" data-key="progress" href="member_progress.html">
+      <span class="nav-ico chip-cyan"><i class="bi bi-graph-up-arrow"></i></span>
+      <span class="nav-label">Progress</span>
+    </a>
+
+    <a class="nav-item" data-key="meal" href="meal_plans.html">
+      <span class="nav-ico chip-green"><i class="bi bi-egg-fried"></i></span>
+      <span class="nav-label">Meal Plans</span>
+    </a>
+
+    <a class="nav-item" data-key="profile" href="profile.html">
+      <span class="nav-ico chip-slate"><i class="bi bi-person"></i></span>
+      <span class="nav-label">Profile</span>
+    </a>
+
+    <a class="nav-item" data-key="nutrition" href="nutrition.html">
+      <span class="nav-ico chip-rose"><i class="bi bi-apple"></i></span>
+      <span class="nav-label">Nutrition</span>
+    </a>
+
+    <a class="nav-item" data-key="schedule" href="schedule.html">
+      <span class="nav-ico chip-indigo"><i class="bi bi-calendar2-week"></i></span>
+      <span class="nav-label">Schedule</span>
+    </a>
+
+    <!-- ✅ Notifications (badge auto-updates via trainer_layout.js) -->
+    <a class="nav-item" data-key="notifications" href="notifications.html">
+      <span class="nav-ico chip-amber">
+        <i class="bi bi-bell"></i>
+        <span id="notifBadge">0</span>
+      </span>
+      <span class="nav-label">Notifications</span>
+    </a>
+
+    <a class="nav-item" data-key="back" href="../../index.html">
+      <span class="nav-ico chip-slate"><i class="bi bi-globe"></i></span>
+      <span class="nav-label">Back to Website</span>
+    </a>
+
+    <hr class="nav-sep">
+    <a class="nav-item logout" href="#" id="btnLogout">
+      <span class="nav-ico" style="background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.18)">
+        <i class="bi bi-box-arrow-right"></i>
+      </span>
+      <span class="nav-label">Logout</span>
+    </a>
+
+    <div class="sidebar-footer">
+      <div class="fw-bold">Trainer Panel</div>
+      <div class="mini">Smart Fit • v1.0</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main flex-grow-1">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div>
+        <h3 class="mb-1 d-flex align-items-center gap-2">
+          <span class="chip chip-cyan"><i class="bi bi-graph-up-arrow"></i></span>
+          Member Progress
+        </h3>
+        <div class="subtitle">Search members and view workout completion counts</div>
+      </div>
+      <span class="badge text-bg-dark badge-pill">Ready <i class="bi bi-check2 ms-1"></i></span>
+    </div>
+
+    <div class="card-soft p-3 mt-3">
+      <div class="row g-2 align-items-center">
+        <div class="col-lg-6">
+          <label class="form-label subtitle mb-1">Search</label>
+          <input id="q" class="form-control" placeholder="Search name/email..." />
+        </div>
+        <div class="col-lg-3">
+          <button class="btn btn-outline-dark btn-pill w-100 mt-lg-4" id="btnSearch">
+            <i class="bi bi-search me-2"></i>Search
+          </button>
+        </div>
+        <div class="col-lg-3">
+          <button class="btn btn-dark btn-pill w-100 mt-lg-4" id="btnReload">
+            <i class="bi bi-arrow-clockwise me-2"></i>Reload
+          </button>
+        </div>
+      </div>
+
+      <div class="table-responsive mt-3">
+        <table class="table table-sm mb-0">
+          <thead>
+            <tr>
+              <th>Member</th>
+              <th>Email</th>
+              <th style="width:120px;">Started</th>
+              <th style="width:130px;">Completed</th>
+              <th style="width:180px;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="rows">
+            <tr><td colspan="5" class="subtitle">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="trainer_layout.js"></script>
+<script>
+  const API_BASE = (window.API && typeof window.API === "string" && window.API.trim() !== "")
+    ? window.API
+    : "/SMART_FIT/backend/";
+
+  const q = document.getElementById("q");
+  const rows = document.getElementById("rows");
+  const btnSearch = document.getElementById("btnSearch");
+  const btnReload = document.getElementById("btnReload");
+
+  function esc(s){
+    return String(s??"")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function pill(n, type){
+    const num = Number(n || 0);
+    const cls = type==="ok" ? "text-bg-success"
+      : type==="warn" ? "text-bg-warning text-dark"
+      : "text-bg-secondary";
+    return `<span class="badge ${cls} badge-pill">${num}</span>`;
+  }
+
+  async function safeJson(res){
+    const txt = await res.text();
+    try { return JSON.parse(txt); }
+    catch {
+      console.error("Invalid JSON:", txt);
+      return { ok:false, message:"Invalid JSON from server" };
+    }
+  }
+
+  async function load(){
+    rows.innerHTML = `<tr><td colspan="5" class="subtitle">Loading...</td></tr>`;
+
+    const params = new URLSearchParams();
+    if(q.value.trim()) params.set("q", q.value.trim());
+
+    const url = API_BASE + "trainer_member_progress_list.php" + (params.toString()?("?"+params.toString()):"");
+    const r = await fetch(url, { credentials:"include" }).catch(()=>null);
+
+    if(!r){
+      rows.innerHTML = `<tr><td colspan="5" class="text-danger">API not reachable</td></tr>`;
+      return;
+    }
+
+    const d = await safeJson(r);
+
+    if(!d.ok){
+      rows.innerHTML = `<tr><td colspan="5" class="text-danger">${esc(d.message || "Failed")}</td></tr>`;
+      return;
+    }
+
+    const items = d.items || [];
+    if(!items.length){
+      rows.innerHTML = `<tr><td colspan="5" class="subtitle">No members</td></tr>`;
+      return;
+    }
+
+    rows.innerHTML = items.map(it=>{
+      const uid = it.user_id || it.id || "";
+      return `
+        <tr>
+          <td class="fw-bold">${esc(it.name || it.member_name || it.username || "Member")}</td>
+          <td class="subtitle">${esc(it.email || "")}</td>
+          <td>${pill(it.started || 0, "warn")}</td>
+          <td>${pill(it.completed || 0, "ok")}</td>
+          <td>
+            <a class="btn btn-sm btn-outline-dark btn-pill"
+               href="member_progress_detail.html?user_id=${encodeURIComponent(uid)}">
+              <i class="bi bi-eye me-1"></i>Details
+            </a>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  btnSearch.addEventListener("click", load);
+  btnReload.addEventListener("click", ()=>{ q.value=""; load(); });
+  q.addEventListener("keydown", (e)=>{ if(e.key==="Enter") load(); });
+
+  document.getElementById("btnLogout").addEventListener("click",(e)=>{ e.preventDefault(); doLogout(); });
+
+  (async()=>{
+    await guardTrainer(); // trainer_layout.js
+    load();
+  })();
+</script>
+</body>
+</html>

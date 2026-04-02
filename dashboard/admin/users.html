@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manage Users | Smart Fit</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <style>
+    :root{
+      --bg1:#c9f7a6;
+      --bg2:#b8f2a0;
+      --bg3:#a0e7a0;
+
+      --sidebar:#000000;
+      --sidebarItem:#0b0b0b;
+      --sidebarActive:#14532d;
+
+      --text:#0f172a;
+      --muted:#6b7280;
+      --card:#ffffff;
+      --line:#e5e7eb;
+
+      --green:#166534;
+      --green2:#14532d;
+      --softGreen:#dcfce7;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+  margin:0;
+  color: var(--text);
+
+  background:
+    linear-gradient(rgba(0,0,0,.15), rgba(0,0,0,.15)),
+    url("../../assets/img/admin-bg.jpg") center/cover no-repeat fixed;
+
+  background-size: cover;
+}
+
+    /* Sidebar */
+    .sidebar{
+      width:270px;
+      min-height:100vh;
+      background:var(--sidebar);
+      color:#fff;
+      padding:18px 16px;
+      position:sticky;
+      top:0;
+      box-shadow:12px 0 28px rgba(0,0,0,.18);
+      display:flex;
+      flex-direction:column;
+    }
+
+    .brand{
+      font-weight:900;
+      letter-spacing:.6px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom:14px;
+      font-size:20px;
+    }
+
+    .brand-mark{
+      width:38px;height:38px;border-radius:14px;
+      background:linear-gradient(135deg,#22c55e,#86efac);
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 10px 24px rgba(34,197,94,.25);
+      flex:0 0 auto;
+    }
+    .brand-mark i{ color:#0b1220; font-size:18px; }
+
+    .sidebar .small-title{
+      color:rgba(255,255,255,.55);
+      font-size:12px;
+      margin:8px 0 10px;
+    }
+
+    .nav-item{
+      color:#cbd5e1;
+      text-decoration:none;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:12px;
+      transition:.15s ease;
+    }
+    .nav-item:hover{
+      background:var(--sidebarItem);
+      color:#fff;
+    }
+    .nav-item.active{
+      background:linear-gradient(135deg,var(--sidebarActive),#0f3f22);
+      color:#fff;
+      box-shadow:0 10px 24px rgba(20,83,45,.35);
+    }
+
+    .nav-ico{
+      width:22px;
+      display:inline-flex;
+      justify-content:center;
+      align-items:center;
+      opacity:.95;
+    }
+
+    .sidebar .spacer{ flex:1; }
+
+    .logout-btn{
+      border-radius:14px;
+      padding:10px 12px;
+      border:1px solid rgba(255,255,255,.22);
+      background:transparent;
+      color:#fff;
+      transition:.15s ease;
+    }
+    .logout-btn:hover{
+      background:#111;
+      border-color:rgba(255,255,255,.28);
+    }
+
+    /* Content */
+    .wrap{
+      width:100%;
+      padding:22px;
+    }
+
+    .topbar{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:14px;
+      margin-bottom:14px;
+    }
+
+    .page-title{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:900;
+      margin:0;
+    }
+
+    .role-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.55);
+      border:1px solid rgba(255,255,255,.65);
+      color:#0f172a;
+      font-size:13px;
+      backdrop-filter: blur(6px);
+    }
+
+    .muted{ color:var(--muted); }
+
+    .card-soft{
+      border:0;
+      border-radius:18px;
+      background:var(--card);
+      box-shadow:0 14px 34px rgba(0,0,0,.10);
+    }
+
+    .card-soft .card-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    .hint{
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    /* inputs */
+    .form-control, .form-select{
+      border-radius:14px;
+      border:1px solid var(--line);
+      box-shadow:none !important;
+    }
+    .form-control:focus, .form-select:focus{
+      border-color:#86efac;
+      box-shadow:0 0 0 .2rem rgba(34,197,94,.15) !important;
+    }
+
+    .btn{
+      border-radius:14px;
+      padding:.55rem .9rem;
+      font-weight:700;
+    }
+    .btn i{ margin-right:6px; }
+
+    .btn-dark{
+      background:linear-gradient(135deg,var(--green),var(--green2));
+      border:0;
+    }
+    .btn-dark:hover{
+      filter:brightness(.95);
+    }
+
+    .btn-outline-dark{
+      border-color:#0f172a;
+      color:#0f172a;
+    }
+    .btn-outline-dark:hover{
+      background:#0f172a;
+      color:#fff;
+    }
+
+    /* table */
+    .table thead th{
+      font-size:.85rem;
+      color:var(--muted);
+      font-weight:800;
+      border-bottom:1px solid var(--line);
+    }
+    .table td{
+      border-bottom:1px solid #f1f5f9;
+    }
+    .table tr:hover td{
+      background:#f8fafc;
+    }
+
+    .badge-soft{
+      font-size:.78rem;
+      padding:.38rem .6rem;
+      border-radius:999px;
+    }
+
+    /* small alert toast container */
+    #msg .alert{
+      border-radius:14px;
+      border:0;
+      box-shadow:0 12px 26px rgba(0,0,0,.10);
+    }
+
+    /* Responsive */
+    @media (max-width: 992px){
+      .sidebar{ width:240px; }
+    }
+    @media (max-width: 768px){
+      .sidebar{ position:fixed; left:-280px; top:0; z-index:999; transition:.2s ease; }
+      .sidebar.open{ left:0; }
+      .wrap{ padding:16px; }
+    }
+  </style>
+</head>
+
+<body>
+<div class="d-flex">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark"><i class="bi bi-heart-pulse-fill"></i></span>
+      <span>SMART FIT • Admin</span>
+    </div>
+
+    <div class="small-title">Control Center</div>
+
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-ico"><i class="bi bi-speedometer2"></i></span>
+      <span>Dashboard</span>
+    </a>
+
+    <a class="nav-item active" href="users.html">
+      <span class="nav-ico"><i class="bi bi-people"></i></span>
+      <span>Manage Users</span>
+    </a>
+
+    <a class="nav-item" href="trainers.html">
+      <span class="nav-ico"><i class="bi bi-person-badge"></i></span>
+      <span>Manage Trainers</span>
+    </a>
+
+    <a class="nav-item" href="workouts.html">
+      <span class="nav-ico"><i class="bi bi-activity"></i></span>
+      <span>Manage Workouts</span>
+    </a>
+
+    <a class="nav-item" href="payments.html">
+      <span class="nav-ico"><i class="bi bi-cash-coin"></i></span>
+      <span>Payments</span>
+    </a>
+
+    <a class="nav-item" href="feedback.html">
+      <span class="nav-ico"><i class="bi bi-chat-left-text"></i></span>
+      <span>Feedback</span>
+    </a>
+
+    <a class="nav-item" href="../../index.html">
+      <span class="nav-ico"><i class="bi bi-arrow-left"></i></span>
+      <span>Back to Home</span>
+    </a>
+
+    <div class="spacer"></div>
+
+    <hr class="border-secondary my-3" style="opacity:.35"/>
+    <button id="btnLogout" class="logout-btn w-100">
+      <i class="bi bi-box-arrow-right me-1"></i> Logout
+    </button>
+  </aside>
+
+  <!-- Content -->
+  <main class="wrap flex-grow-1">
+
+    <div class="topbar">
+      <div>
+        <h3 class="page-title">
+          <i class="bi bi-people"></i> Manage Users
+        </h3>
+        <div class="muted mt-1">
+          <i class="bi bi-sliders"></i>
+          Search / filter and update role, plan & status
+        </div>
+      </div>
+
+      <div class="role-pill">
+        <i class="bi bi-shield-check"></i>
+        <span>Role: admin</span>
+      </div>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="card-soft p-3 mb-3">
+      <div class="row g-2 align-items-center">
+        <div class="col-md-5">
+          <input id="txtQ" class="form-control" placeholder="🔍 Search by name, email, phone..." />
+        </div>
+        <div class="col-md-3">
+          <select id="selRole" class="form-select">
+            <option value="all">All roles</option>
+            <option value="member">Members</option>
+            <option value="trainer">Trainers</option>
+            <option value="admin">Admins</option>
+          </select>
+        </div>
+        <div class="col-md-2 d-grid">
+          <button id="btnSearch" class="btn btn-dark">
+            <i class="bi bi-search"></i> Search
+          </button>
+        </div>
+        <div class="col-md-2 d-grid">
+          <button id="btnReset" class="btn btn-outline-dark">
+            <i class="bi bi-arrow-counterclockwise"></i> Reset
+          </button>
+        </div>
+      </div>
+      <div class="hint mt-2">
+        💡 Tip: Change role/plan and click Save. Use Block/Activate for status.
+      </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="card-soft p-3">
+      <div class="card-head">
+        <div class="fw-bold">
+          <i class="bi bi-list-ul"></i> Users
+        </div>
+        <div class="small muted" id="lblCount">—</div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table align-middle mb-1">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th><i class="bi bi-person"></i> Name</th>
+              <th><i class="bi bi-envelope"></i> Email</th>
+              <th><i class="bi bi-telephone"></i> Phone</th>
+              <th>Role</th>
+              <th>Plan</th>
+              <th>Status</th>
+              <th><i class="bi bi-calendar3"></i> Created</th>
+              <th style="width:260px;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="tbUsers">
+            <tr><td colspan="9" class="text-center muted py-4">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="msg" class="mt-2"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- 🔹 JS (UNCHANGED LOGIC) -->
+<script>
+  const BASE = "../../";
+
+  async function guardAdmin() {
+    const r = await fetch(BASE + "backend/check_auth.php", { credentials: "include" });
+    if (r.status === 401) { location.href = BASE + "login.html"; return false; }
+    const data = await r.json();
+    if ((data.role || "") !== "admin") {
+      if (data.role === "trainer") location.href = BASE + "dashboard/trainer/dashboard.html";
+      else location.href = BASE + "dashboard/member/dashboard.html";
+      return false;
+    }
+    return true;
+  }
+
+  async function logout() {
+    await fetch(BASE + "backend/logout.php", { credentials: "include" }).catch(()=>{});
+    location.href = BASE + "login.html";
+  }
+
+  function esc(s){ return String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+  function toast(text, ok=true){
+    const el = document.getElementById("msg");
+    el.innerHTML = `<div class="alert ${ok?'alert-success':'alert-danger'} py-2 mb-0">${esc(text)}</div>`;
+    setTimeout(()=>{ el.innerHTML = ""; }, 2500);
+  }
+
+  function statusBadge(status){
+    const s = (status || "active").toLowerCase();
+    if (s === "blocked") return `<span class="badge badge-soft text-bg-danger"><i class="bi bi-slash-circle"></i> Blocked</span>`;
+    return `<span class="badge badge-soft text-bg-success"><i class="bi bi-check-circle"></i> Active</span>`;
+  }
+
+  function toggleText(status){
+    const s = (status || "active").toLowerCase();
+    return (s === "blocked") ? "Activate" : "Block";
+  }
+
+  function toggleNext(status){
+    const s = (status || "active").toLowerCase();
+    return (s === "blocked") ? "active" : "blocked";
+  }
+
+  async function loadUsers() {
+    const q = document.getElementById("txtQ").value.trim();
+    const role = document.getElementById("selRole").value;
+
+    const tb = document.getElementById("tbUsers");
+    tb.innerHTML = `<tr><td colspan="9" class="text-center muted py-4">Loading…</td></tr>`;
+
+    const params = new URLSearchParams();
+    if (q) params.set("q", q);
+    if (role) params.set("role", role);
+
+    const url = BASE + "backend/admin_get_users.php" + (params.toString() ? ("?" + params.toString()) : "");
+    const r = await fetch(url, { credentials: "include" });
+    const data = await r.json().catch(()=>({ok:false}));
+
+    if (!data.ok) {
+      tb.innerHTML = `<tr><td colspan="9" class="text-center text-danger py-4">Failed to load</td></tr>`;
+      return;
+    }
+
+    const users = data.users || [];
+    document.getElementById("lblCount").textContent = `${users.length} user(s)`;
+
+    if (!users.length) {
+      tb.innerHTML = `<tr><td colspan="9" class="text-center muted py-4">No users found</td></tr>`;
+      return;
+    }
+
+    tb.innerHTML = users.map(u => {
+      const st = (u.status || "active");
+      return `
+      <tr data-id="${u.id}" data-status="${esc(st)}">
+        <td>${u.id}</td>
+        <td>${esc(u.first_name)} ${esc(u.last_name)}</td>
+        <td>${esc(u.email)}</td>
+        <td>${esc(u.phone)}</td>
+
+        <td>
+          <select class="form-select form-select-sm selRole">
+            <option value="member" ${u.role==='member'?'selected':''}>member</option>
+            <option value="trainer" ${u.role==='trainer'?'selected':''}>trainer</option>
+            <option value="admin" ${u.role==='admin'?'selected':''}>admin</option>
+          </select>
+        </td>
+
+        <td>
+          <select class="form-select form-select-sm selPlan">
+            <option value="basic" ${u.plan==='basic'?'selected':''}>basic</option>
+            <option value="premium" ${u.plan==='premium'?'selected':''}>premium</option>
+            <option value="pro" ${u.plan==='pro'?'selected':''}>pro</option>
+          </select>
+        </td>
+
+        <td class="tdStatus">${statusBadge(st)}</td>
+        <td class="small muted">${esc(u.created_at)}</td>
+
+        <td class="d-flex gap-2">
+          <button class="btn btn-sm btn-dark btnSave">
+            <i class="bi bi-save"></i> Save
+          </button>
+          <button class="btn btn-sm btn-outline-danger btnToggle" data-next="${toggleNext(st)}">
+            <i class="bi bi-slash-circle"></i> ${toggleText(st)}
+          </button>
+        </td>
+      </tr>`;
+    }).join("");
+  }
+
+  async function saveRow(btn) {
+    const tr = btn.closest("tr");
+    const user_id = Number(tr.dataset.id);
+    const role = tr.querySelector(".selRole").value;
+    const plan = tr.querySelector(".selPlan").value;
+
+    btn.disabled = true;
+    btn.innerHTML = `<i class="bi bi-hourglass-split"></i> Saving…`;
+
+    const r = await fetch(BASE + "backend/admin_update_user.php", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id, role, plan })
+    });
+
+    btn.disabled = false;
+    btn.innerHTML = `<i class="bi bi-save"></i> Save`;
+
+    const data = await r.json().catch(()=>({ok:false}));
+    if (data.ok) toast("Updated successfully ✅", true);
+    else toast(data.message || "Update failed", false);
+  }
+
+  async function toggleStatus(btn) {
+    const tr = btn.closest("tr");
+    const id = Number(tr.dataset.id);
+    const next = btn.dataset.next;
+
+    btn.disabled = true;
+    btn.innerHTML = `<i class="bi bi-hourglass-split"></i> Working…`;
+
+    const r = await fetch(BASE + "backend/admin_update_user_status.php", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, status: next })
+    });
+
+    const data = await r.json().catch(()=>({ok:false}));
+
+    btn.disabled = false;
+
+    if (!data.ok) {
+      toast(data.message || "Status update failed", false);
+      return;
+    }
+
+    tr.dataset.status = next;
+    tr.querySelector(".tdStatus").innerHTML = statusBadge(next);
+    btn.dataset.next = toggleNext(next);
+    btn.classList.toggle("btn-outline-danger", next === "active");
+    btn.classList.toggle("btn-outline-success", next === "blocked");
+    btn.innerHTML = `<i class="bi bi-slash-circle"></i> ${toggleText(next)}`;
+
+    toast(`User status changed to ${next} ✅`, true);
+  }
+
+  document.getElementById("btnLogout").addEventListener("click", logout);
+  document.getElementById("btnSearch").addEventListener("click", loadUsers);
+  document.getElementById("btnReset").addEventListener("click", () => {
+    document.getElementById("txtQ").value = "";
+    document.getElementById("selRole").value = "all";
+    loadUsers();
+  });
+
+  document.addEventListener("click", (e) => {
+    if (e.target.closest(".btnSave")) saveRow(e.target.closest(".btnSave"));
+    if (e.target.closest(".btnToggle")) toggleStatus(e.target.closest(".btnToggle"));
+  });
+
+  (async () => {
+    const ok = await guardAdmin();
+    if (ok) loadUsers();
+  })();
+</script>
+
+</body>
+</html>

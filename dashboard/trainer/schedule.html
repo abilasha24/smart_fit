@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trainer Schedule | Smart Fit</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- ✅ Same layout CSS -->
+ <link rel="stylesheet" href="trainer_layout.css?v=9">
+
+  <style>
+    /* page-only */
+    .hint { color:#6b7280; font-size:12px; }
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;}
+    .mini-card{ background:#fff; border:1px solid var(--line); border-radius:18px; box-shadow:0 10px 22px rgba(15,23,42,.06); }
+  </style>
+</head>
+
+<body data-active="schedule">
+<div class="app d-flex">
+
+  <!-- ✅ Sidebar (same style + notifications badge) -->
+  <aside class="sidebar">
+    <div class="brand">SMART FIT</div>
+    <div class="hello">Hi, <span id="trainerName">trainer</span></div>
+
+    <a class="nav-item" data-key="dashboard" href="dashboard.html">
+      <span class="nav-ico"><i class="bi bi-speedometer2"></i></span>
+      <span class="nav-label">Dashboard</span>
+    </a>
+
+    <a class="nav-item" data-key="members" href="members.html">
+      <span class="nav-ico"><i class="bi bi-people"></i></span>
+      <span class="nav-label">Members & Assign</span>
+    </a>
+
+    <a class="nav-item" data-key="workouts" href="workouts.html">
+      <span class="nav-ico"><i class="bi bi-activity"></i></span>
+      <span class="nav-label">Workouts</span>
+    </a>
+
+    <a class="nav-item" data-key="progress" href="progress.html">
+      <span class="nav-ico"><i class="bi bi-graph-up-arrow"></i></span>
+      <span class="nav-label">Progress</span>
+    </a>
+
+    <a class="nav-item" data-key="meal_plans" href="meal_plans.html">
+      <span class="nav-ico"><i class="bi bi-egg-fried"></i></span>
+      <span class="nav-label">Meal Plans</span>
+    </a>
+
+    <a class="nav-item" data-key="nutrition" href="nutrition.html">
+      <span class="nav-ico"><i class="bi bi-apple"></i></span>
+      <span class="nav-label">Nutrition</span>
+    </a>
+
+    <a class="nav-item active" data-key="schedule" href="schedule.html">
+      <span class="nav-ico"><i class="bi bi-calendar-check"></i></span>
+      <span class="nav-label">Schedule</span>
+    </a>
+
+    <a class="nav-item" data-key="profile" href="profile.html">
+      <span class="nav-ico"><i class="bi bi-person"></i></span>
+      <span class="nav-label">Profile</span>
+    </a>
+
+    <!-- ✅ Notifications (same sidebar style + badge) -->
+    <a class="nav-item" data-key="notifications" href="notifications.html">
+      <span class="nav-ico"><i class="bi bi-bell"></i></span>
+      <span class="nav-label">Notifications</span>
+      <span class="notif-badge" id="navNotifBadge">0</span>
+    </a>
+
+    <a class="nav-item" data-key="website" href="../../index.html">
+      <span class="nav-ico"><i class="bi bi-globe2"></i></span>
+      <span class="nav-label">Back to Website</span>
+    </a>
+
+    <hr class="nav-sep">
+
+    <a class="nav-item logout" href="#" id="btnLogout">
+      <span class="nav-ico"><i class="bi bi-box-arrow-right"></i></span>
+      <span class="nav-label">Logout</span>
+    </a>
+
+    <div class="sidebar-footer">
+      <div class="fw-bold">Trainer Panel</div>
+      <div class="mini">Trainer tools • schedule & check-ins</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main flex-grow-1">
+    <div class="d-flex align-items-start justify-content-between mb-3 flex-wrap gap-2">
+      <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-calendar3 me-2"></i>Schedule</h2>
+        <div class="subtitle">Plan reminders & weekly check-ins (DB based)</div>
+      </div>
+      <span class="badge text-bg-dark badge-pill">Ready</span>
+    </div>
+
+    <div class="row g-3">
+      <!-- Add -->
+      <div class="col-lg-6">
+        <div class="card-soft p-3">
+          <div class="fw-bold mb-2"><i class="bi bi-plus-circle me-2"></i>Add Schedule Item</div>
+
+          <div class="row g-2">
+            <div class="col-12">
+              <label class="form-label small text-muted mb-1">Member User ID (required)</label>
+              <input id="user_id" type="number" class="form-control" placeholder="e.g., 11" min="1">
+              <div class="hint mt-1">Tip: user_id = users table member id</div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label small text-muted mb-1">Title</label>
+              <input id="title" class="form-control" placeholder="e.g., Weekly Check-in">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small text-muted mb-1">Date</label>
+              <input id="date" type="date" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small text-muted mb-1">Time (optional)</label>
+              <input id="time" type="time" class="form-control">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label small text-muted mb-1">Notes</label>
+              <textarea id="notes" class="form-control" rows="3" placeholder="Member name / reminder / goals..."></textarea>
+            </div>
+
+            <div class="col-12 d-flex gap-2 mt-2">
+              <button class="btn btn-dark btn-pill" id="btnAdd"><i class="bi bi-check2-circle me-1"></i>Add</button>
+              <button class="btn btn-outline-secondary btn-pill" id="btnClear"><i class="bi bi-x-circle me-1"></i>Clear</button>
+              <button class="btn btn-outline-dark btn-pill ms-auto" id="btnReload"><i class="bi bi-arrow-repeat me-1"></i>Reload</button>
+            </div>
+
+            <div id="msg" class="small mt-2"></div>
+            <div class="hint mt-1">Note: When you add schedule, member will get notification automatically (your backend already added).</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upcoming -->
+      <div class="col-lg-6">
+        <div class="card-soft p-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="fw-bold"><i class="bi bi-list-task me-2"></i>Upcoming (created by you)</div>
+            <span class="badge text-bg-light border">DB</span>
+          </div>
+
+          <div id="list" class="vstack gap-2">
+            <div class="text-muted">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const API = {
+  add: "../../backend/schedule_add.php",
+  list: "../../backend/schedule_list.php",
+  del: "../../backend/schedule_delete.php",
+};
+
+function esc(s){
+  return String(s ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function showMsg(t, ok=false){
+  const el = document.getElementById("msg");
+  el.className = ok ? "text-success" : "text-danger";
+  el.textContent = t || "";
+}
+
+function clearForm(){
+  ["user_id","title","date","time","notes"].forEach(id=>document.getElementById(id).value="");
+  showMsg("");
+}
+
+async function loadList(){
+  const list = document.getElementById("list");
+  list.innerHTML = `<div class="text-muted">Loading...</div>`;
+
+  try{
+    const res = await fetch(API.list, { credentials:"include" });
+    const data = await res.json();
+    if(!data.ok) throw new Error(data.message || "Failed");
+
+    if(!data.items || data.items.length === 0){
+      list.innerHTML = `<div class="text-muted">No schedule items yet</div>`;
+      return;
+    }
+
+    list.innerHTML = "";
+    data.items.forEach(it=>{
+      const when = `${it.schedule_date}${it.schedule_time ? " • "+it.schedule_time : ""}`;
+      list.innerHTML += `
+        <div class="mini-card p-3">
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <div>
+              <div class="fw-bold">${esc(it.title)}</div>
+              <div class="text-muted small">${esc(when)}</div>
+              <div class="small mt-2" style="white-space:pre-line">${esc(it.notes)}</div>
+              <div class="small text-muted mt-2">Member ID: <span class="mono">${it.user_id}</span></div>
+            </div>
+            <button class="btn btn-sm btn-outline-danger btn-pill" data-del="${it.id}">
+              <i class="bi bi-trash3"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    });
+
+    list.querySelectorAll("[data-del]").forEach(btn=>{
+      btn.addEventListener("click", async ()=>{
+        const id = parseInt(btn.getAttribute("data-del"),10);
+        if(!confirm("Delete this schedule item?")) return;
+
+        const r = await fetch(API.del,{
+          method:"POST",
+          credentials:"include",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify({ id })
+        });
+        const out = await r.json();
+        if(!out.ok) alert(out.message || "Delete failed");
+        await loadList();
+      });
+    });
+
+  }catch(e){
+    list.innerHTML = `<div class="text-danger">Error: ${esc(e.message)}</div>`;
+  }
+}
+
+document.getElementById("btnAdd").addEventListener("click", async ()=>{
+  showMsg("");
+
+  const payload = {
+    user_id: parseInt(document.getElementById("user_id").value || "0",10),
+    title: document.getElementById("title").value.trim(),
+    date:  document.getElementById("date").value,
+    time:  document.getElementById("time").value,
+    notes: document.getElementById("notes").value.trim(),
+  };
+
+  try{
+    const r = await fetch(API.add,{
+      method:"POST",
+      credentials:"include",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify(payload)
+    });
+    const out = await r.json();
+    if(!out.ok) throw new Error(out.message || "Add failed");
+
+    showMsg("Added ✅", true);
+    await loadList();
+  }catch(e){
+    showMsg(e.message || "Failed");
+  }
+});
+
+document.getElementById("btnClear").addEventListener("click", clearForm);
+document.getElementById("btnReload").addEventListener("click", loadList);
+
+(async function(){
+  await loadList();
+})();
+</script>
+
+<!-- ✅ layout JS (guard + logout + active menu + notifications badge) -->
+<script src="trainer_layout.js"></script>
+
+</body>
+</html>

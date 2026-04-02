@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard | Smart Fit</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <style>
+    :root{
+      --card:#ffffff;
+      --line:rgba(0,0,0,.10);
+      --black:#000000;
+      --text:#000000;
+      --muted:rgba(17,24,39,.72);
+      --green:#16a34a;
+      --green2:#22c55e;
+      --greenDark:#14532d;
+      --chip:#ecfdf5;
+    }
+
+    *{ box-sizing:border-box; }
+
+    html,body{
+      height:100%;
+      overflow:hidden;
+    }
+
+    body{
+      margin:0;
+      color: var(--text);
+      background:
+        linear-gradient(rgba(0,0,0,.15), rgba(0,0,0,.15)),
+        url("../../assets/img/admin-bg.jpg") center/cover no-repeat fixed;
+      background-size: cover;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    .app-shell{
+      height:100vh;
+      display:flex;
+      overflow:hidden;
+    }
+
+    .sidebar{
+      width:228px;
+      min-width:228px;
+      height:100vh;
+      background: var(--black) !important;
+      color:#fff !important;
+      box-shadow: 10px 0 30px rgba(0,0,0,.20);
+      overflow:auto;
+      scrollbar-width:none;
+      flex-shrink:0;
+    }
+    .sidebar::-webkit-scrollbar{ width:0; height:0; }
+
+    .sidebar.p-3{
+      padding:12px !important;
+    }
+
+    .sidebar a{
+      color:#cbd5e1;
+      text-decoration:none;
+      display:block;
+      padding:8px 11px;
+      border-radius:11px;
+      transition:.15s ease;
+      font-size:14px;
+    }
+    .sidebar a:hover{
+      background: rgba(34,197,94,.14);
+      color:#fff;
+    }
+    .sidebar a.active{
+      background: rgba(34,197,94,.22);
+      box-shadow: inset 0 0 0 1px rgba(34,197,94,.35);
+      color:#fff;
+    }
+
+    .brand{
+      font-weight:900;
+      letter-spacing:.3px;
+      display:flex;
+      align-items:center;
+      gap:9px;
+      font-size:16px !important;
+      margin-bottom:10px !important;
+    }
+    .brand-mark{
+      width:30px;
+      height:30px;
+      border-radius:10px;
+      background: linear-gradient(135deg,var(--green),var(--green2));
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 10px 22px rgba(34,197,94,.30);
+      flex:0 0 auto;
+    }
+    .brand-mark i{ color:#fff; font-size:16px; }
+
+    .nav-ico{
+      width:18px;
+      display:inline-flex;
+      justify-content:center;
+      margin-right:10px;
+      opacity:.95;
+      color:#e5e7eb;
+    }
+
+    .main{
+      flex:1;
+      min-width:0;
+      height:100vh;
+      overflow:hidden;
+      padding:10px !important;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .topbar{
+      flex-shrink:0;
+      margin-bottom:0;
+    }
+
+    .page-title{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:18px;
+      line-height:1.1;
+    }
+    .page-title i{ color:#000; }
+
+    .muted{ color: var(--muted); }
+
+    .card-soft{
+      border:1px solid var(--line);
+      border-radius:15px;
+      background: rgba(255,255,255,.94);
+      box-shadow:0 10px 22px rgba(0,0,0,.08);
+      backdrop-filter: blur(2px);
+    }
+
+    .card-ico{
+      width:36px;
+      height:36px;
+      border-radius:11px;
+      background: rgba(34,197,94,.16);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:1px solid rgba(34,197,94,.22);
+      flex:0 0 auto;
+    }
+    .card-ico i{
+      font-size:16px;
+      color: var(--greenDark);
+    }
+
+    .stats-grid{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap:8px;
+      flex-shrink:0;
+    }
+
+    .stat-card{
+      min-height:78px;
+      padding:10px 11px !important;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .stat-label{
+      font-size:11px;
+      color:var(--muted);
+      line-height:1.15;
+      margin-bottom:4px;
+      font-weight:700;
+    }
+
+    .stat-value{
+      font-size:17px;
+      font-weight:900;
+      line-height:1.1;
+      color:#000;
+      margin:0;
+    }
+
+    #sTotalRevenue, #sMonthRevenue{
+      color: var(--greenDark);
+      font-size:16px;
+    }
+
+    .middle-grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:8px;
+      flex-shrink:0;
+      min-height:206px;
+    }
+
+    .middle-card{
+      padding:11px !important;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+
+    .section-title{
+      font-weight:800;
+      margin-bottom:8px;
+      display:flex;
+      align-items:center;
+      gap:7px;
+      font-size:13px;
+      line-height:1.2;
+    }
+
+    .badge{
+      border-radius:999px;
+      padding:.38rem .62rem;
+      font-weight:900;
+      font-size:11px;
+    }
+
+    .stat-list{
+      display:grid;
+      gap:6px;
+    }
+
+    .stat-item{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+      padding:7px 10px;
+      border-radius:12px;
+      background: var(--chip);
+      border:1px solid rgba(34,197,94,.12);
+      font-weight:700;
+      min-height:36px;
+      font-size:12px;
+    }
+
+    .pill-soft{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:32px;
+      padding:3px 8px;
+      border-radius:999px;
+      background:#111827;
+      color:#fff;
+      font-size:10px;
+      font-weight:800;
+    }
+
+    .compact-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:7px !important;
+    }
+
+    .compact-actions .btn{
+      padding:6px 11px;
+      font-size:12px;
+      border-radius:12px;
+      font-weight:900;
+    }
+
+    .compact-chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:7px !important;
+      margin-top:8px !important;
+    }
+
+    .quick-chip{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      padding:6px 10px;
+      border-radius:12px;
+      background: rgba(34,197,94,.14);
+      border:1px solid rgba(34,197,94,.22);
+      color:#000;
+      text-decoration:none;
+      font-weight:800;
+      transition:.15s ease;
+      font-size:12px;
+    }
+    .quick-chip:hover{
+      background: rgba(34,197,94,.22);
+    }
+
+    .btn-dark{
+      background: var(--black) !important;
+      border-color: var(--black) !important;
+      color:#fff !important;
+    }
+    .btn-dark:hover{
+      background: var(--greenDark) !important;
+      border-color: var(--greenDark) !important;
+    }
+
+    .btn-outline-dark{
+      border-color: var(--black) !important;
+      color: var(--black) !important;
+      background: transparent !important;
+    }
+    .btn-outline-dark:hover{
+      background: rgba(34,197,94,.18) !important;
+      color: var(--black) !important;
+      border-color: var(--black) !important;
+    }
+
+    .data-grid{
+      flex:1;
+      min-height:0;
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap:8px;
+    }
+
+    .data-card{
+      min-height:0;
+      padding:11px !important;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      min-height:0;
+      flex:1;
+      scrollbar-width:thin;
+    }
+
+    .mini-table{
+      margin-bottom:0;
+    }
+
+    .mini-table thead th{
+      font-size:11px;
+      color:var(--muted);
+      font-weight:800;
+      border-bottom:1px solid rgba(0,0,0,.10);
+      white-space:nowrap;
+      padding-top:6px;
+      padding-bottom:6px;
+      position:sticky;
+      top:0;
+      background: rgba(255,255,255,.96);
+    }
+
+    .mini-table tbody td{
+      font-size:12px;
+      vertical-align:middle;
+      padding-top:6px;
+      padding-bottom:6px;
+    }
+
+    .rating-star{
+      color:#f59e0b;
+      font-weight:900;
+      letter-spacing:.4px;
+      font-size:12px;
+    }
+
+    #btnLogout{
+      border-radius:13px;
+      font-weight:900;
+      border-color: rgba(255,255,255,.30) !important;
+      padding:8px 11px;
+      font-size:14px;
+    }
+    #btnLogout:hover{
+      background: rgba(34,197,94,.20) !important;
+      border-color: rgba(34,197,94,.55) !important;
+      color:#fff !important;
+    }
+
+    .small.text-white-50.mb-3{
+      margin-bottom:10px !important;
+    }
+
+    hr.border-secondary.my-3{
+      margin-top:10px !important;
+      margin-bottom:10px !important;
+    }
+
+    @media (max-width: 1200px){
+      html,body{ overflow:auto; }
+      .app-shell{
+        height:auto;
+        min-height:100vh;
+        flex-direction:column;
+      }
+      .sidebar{
+        width:100%;
+        min-width:100%;
+        height:auto;
+      }
+      .main{
+        height:auto;
+        overflow:visible;
+      }
+      .stats-grid,
+      .middle-grid,
+      .data-grid{
+        display:block;
+      }
+      .stats-grid > *,
+      .middle-grid > *,
+      .data-grid > *{
+        margin-bottom:8px;
+      }
+      .table-wrap{
+        max-height:260px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div class="app-shell">
+  <aside class="sidebar p-3">
+    <div class="brand">
+      <span class="brand-mark"><i class="bi bi-heart-pulse-fill"></i></span>
+      <span>SMART FIT • Admin</span>
+    </div>
+    <div class="small text-white-50 mb-3">Control Center</div>
+
+    <a class="active" href="dashboard.html"><span class="nav-ico"><i class="bi bi-speedometer2"></i></span>Dashboard</a>
+    <a href="users.html"><span class="nav-ico"><i class="bi bi-people"></i></span>Manage Users</a>
+    <a href="trainers.html"><span class="nav-ico"><i class="bi bi-person-badge"></i></span>Manage Trainers</a>
+    <a href="workouts.html"><span class="nav-ico"><i class="bi bi-activity"></i></span>Manage Workouts</a>
+    <a href="payments.html"><span class="nav-ico"><i class="bi bi-cash-coin"></i></span>Payments</a>
+    <a href="feedback.html"><span class="nav-ico"><i class="bi bi-chat-left-text"></i></span>Feedback</a>
+    <a href="../../index.html"><span class="nav-ico"><i class="bi bi-arrow-left"></i></span>Back to Home</a>
+
+    <hr class="border-secondary my-3"/>
+    <button id="btnLogout" class="btn btn-outline-light w-100">
+      <i class="bi bi-box-arrow-right"></i> Logout
+    </button>
+  </aside>
+
+  <main class="main">
+    <div class="topbar d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <div>
+        <h3 class="mb-0 page-title"><i class="bi bi-speedometer2"></i> Dashboard</h3>
+        <div class="muted">
+          <i class="bi bi-hand-thumbs-up"></i>
+          Welcome, <span id="hiName">...</span>
+        </div>
+      </div>
+      <div class="text-end">
+        <div class="small muted"><i class="bi bi-shield-check"></i> Role: <span id="roleText">admin</span></div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="card-soft stat-card">
+        <div>
+          <div class="stat-label"><i class="bi bi-people"></i> Total Users</div>
+          <div class="stat-value" id="sTotalUsers">—</div>
+        </div>
+        <div class="card-ico"><i class="bi bi-people"></i></div>
+      </div>
+
+      <div class="card-soft stat-card">
+        <div>
+          <div class="stat-label"><i class="bi bi-activity"></i> Workouts</div>
+          <div class="stat-value" id="sWorkouts">—</div>
+        </div>
+        <div class="card-ico"><i class="bi bi-activity"></i></div>
+      </div>
+
+      <div class="card-soft stat-card">
+        <div>
+          <div class="stat-label"><i class="bi bi-check2-circle"></i> Completions</div>
+          <div class="stat-value" id="sCompletions">—</div>
+        </div>
+        <div class="card-ico"><i class="bi bi-check2-circle"></i></div>
+      </div>
+
+      <div class="card-soft stat-card">
+        <div>
+          <div class="stat-label"><i class="bi bi-chat-left-text"></i> Feedback</div>
+          <div class="stat-value" id="sFeedback">—</div>
+        </div>
+        <div class="card-ico"><i class="bi bi-chat-left-text"></i></div>
+      </div>
+
+      <div class="card-soft stat-card">
+        <div>
+          <div class="stat-label"><i class="bi bi-cash-coin"></i> Total Revenue</div>
+          <div class="stat-value" id="sTotalRevenue">—</div>
+        </div>
+        <div class="card-ico"><i class="bi bi-cash-coin"></i></div>
+      </div>
+
+      <div class="card-soft stat-card">
+        <div>
+          <div class="stat-label"><i class="bi bi-calendar2-week"></i> This Month</div>
+          <div class="stat-value" id="sMonthRevenue">—</div>
+        </div>
+        <div class="card-ico"><i class="bi bi-calendar2-week"></i></div>
+      </div>
+
+      <div class="card-soft stat-card">
+        <div>
+          <div class="stat-label"><i class="bi bi-receipt"></i> Paid Transactions</div>
+          <div class="stat-value" id="sPaidTxn">—</div>
+        </div>
+        <div class="card-ico"><i class="bi bi-receipt"></i></div>
+      </div>
+
+      <div class="card-soft stat-card">
+        <div>
+          <div class="stat-label"><i class="bi bi-shield-lock"></i> Blocked Users</div>
+          <div class="stat-value" id="sBlockedUsers">—</div>
+        </div>
+        <div class="card-ico"><i class="bi bi-shield-lock"></i></div>
+      </div>
+    </div>
+
+    <div class="middle-grid">
+      <div class="card-soft middle-card">
+        <div class="section-title"><i class="bi bi-diagram-3"></i> Users by Role</div>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="badge text-bg-primary"><i class="bi bi-person"></i> Members: <span id="sMembers">—</span></span>
+          <span class="badge text-bg-warning text-dark"><i class="bi bi-person-badge"></i> Trainers: <span id="sTrainers">—</span></span>
+          <span class="badge text-bg-dark"><i class="bi bi-shield-check"></i> Admins: <span id="sAdmins">—</span></span>
+        </div>
+
+        <div class="section-title mt-3"><i class="bi bi-heart-pulse"></i> BMI Category Summary</div>
+        <div class="stat-list">
+          <div class="stat-item"><span>Normal</span><span class="pill-soft" id="bmiNormal">0</span></div>
+          <div class="stat-item"><span>Overweight</span><span class="pill-soft" id="bmiOverweight">0</span></div>
+          <div class="stat-item"><span>Underweight</span><span class="pill-soft" id="bmiUnderweight">0</span></div>
+          <div class="stat-item"><span>Obese</span><span class="pill-soft" id="bmiObese">0</span></div>
+        </div>
+      </div>
+
+      <div class="card-soft middle-card">
+        <div class="section-title"><i class="bi bi-lightning-charge"></i> Quick Actions</div>
+        <div class="compact-actions">
+          <a class="btn btn-dark" href="users.html"><i class="bi bi-people"></i>Manage Users</a>
+          <a class="btn btn-outline-dark" href="payments.html"><i class="bi bi-cash-coin"></i>Payments</a>
+          <a class="btn btn-outline-dark" href="feedback.html"><i class="bi bi-chat-left-text"></i>Feedback</a>
+          <a class="btn btn-outline-dark" href="workouts.html"><i class="bi bi-activity"></i>Workouts</a>
+        </div>
+
+        <div class="compact-chips">
+          <a class="quick-chip" href="trainers.html"><i class="bi bi-person-badge"></i> Trainers</a>
+          <a class="quick-chip" href="plans.html"><i class="bi bi-sliders"></i> Roles & Plans</a>
+          <a class="quick-chip" href="payments.html"><i class="bi bi-graph-up"></i> Revenue</a>
+        </div>
+
+        <div class="section-title mt-3"><i class="bi bi-list-check"></i> Workout Status Overview</div>
+        <div class="stat-list">
+          <div class="stat-item"><span>Assigned</span><span class="pill-soft" id="wsAssigned">0</span></div>
+          <div class="stat-item"><span>Started</span><span class="pill-soft" id="wsStarted">0</span></div>
+          <div class="stat-item"><span>Completed</span><span class="pill-soft" id="wsCompleted">0</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="data-grid">
+      <div class="card-soft data-card">
+        <div class="section-title"><i class="bi bi-person-plus"></i> Recent Users</div>
+        <div class="table-wrap">
+          <table class="table mini-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="recentUsersRows">
+              <tr><td colspan="3" class="muted">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card-soft data-card">
+        <div class="section-title"><i class="bi bi-cash-stack"></i> Recent Payments</div>
+        <div class="table-wrap">
+          <table class="table mini-table">
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Plan</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody id="recentPaymentsRows">
+              <tr><td colspan="3" class="muted">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card-soft data-card">
+        <div class="section-title"><i class="bi bi-chat-dots"></i> Latest Feedback</div>
+        <div class="table-wrap">
+          <table class="table mini-table">
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Rating</th>
+                <th>Read</th>
+              </tr>
+            </thead>
+            <tbody id="latestFeedbackRows">
+              <tr><td colspan="3" class="muted">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  const BASE = "../../";
+
+  function esc(v){
+    return String(v ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  async function getJSON(url){
+    try{
+      const r = await fetch(url, { credentials:"include" });
+      return await r.json();
+    }catch(e){
+      return { ok:false, message:"Fetch failed" };
+    }
+  }
+
+  async function guardAdmin() {
+    const r = await fetch(BASE + "backend/check_auth.php", { credentials: "include" });
+
+    if (r.status === 401) {
+      location.href = BASE + "login.html";
+      return false;
+    }
+
+    const data = await r.json();
+
+    if ((data.role || "") !== "admin") {
+      if (data.role === "trainer") location.href = BASE + "dashboard/trainer/dashboard.html";
+      else location.href = BASE + "dashboard/member/dashboard.html";
+      return false;
+    }
+
+    document.getElementById("roleText").textContent = data.role || "admin";
+
+    const hi =
+      data.first_name ||
+      data.full_name ||
+      data.name ||
+      "Admin";
+
+    document.getElementById("hiName").textContent = hi;
+    return true;
+  }
+
+  async function loadStats() {
+    const data = await getJSON(BASE + "backend/admin_get_stats.php");
+    if (!data.ok) return;
+
+    const s = data.stats || {};
+
+    document.getElementById("sTotalUsers").textContent = s.total_users ?? 0;
+    document.getElementById("sWorkouts").textContent = s.workouts_count ?? 0;
+    document.getElementById("sCompletions").textContent = s.completions_count ?? 0;
+    document.getElementById("sFeedback").textContent = s.feedback_count ?? 0;
+
+    document.getElementById("sMembers").textContent = s.total_members ?? 0;
+    document.getElementById("sTrainers").textContent = s.total_trainers ?? 0;
+    document.getElementById("sAdmins").textContent = s.total_admins ?? 0;
+
+    document.getElementById("sTotalRevenue").textContent =
+      "LKR " + Number(s.total_revenue || 0).toFixed(2);
+
+    document.getElementById("sMonthRevenue").textContent =
+      "LKR " + Number(s.this_month_revenue || 0).toFixed(2);
+
+    document.getElementById("sPaidTxn").textContent = s.paid_transactions ?? 0;
+    document.getElementById("sBlockedUsers").textContent = s.blocked_users ?? 0;
+  }
+
+  async function loadRecentUsers(){
+    const box = document.getElementById("recentUsersRows");
+    const data = await getJSON(BASE + "backend/admin_recent_users.php");
+
+    if(!data.ok){
+      box.innerHTML = `<tr><td colspan="3" class="text-danger">Failed</td></tr>`;
+      return;
+    }
+
+    const items = Array.isArray(data.items) ? data.items : [];
+    if(!items.length){
+      box.innerHTML = `<tr><td colspan="3" class="muted">No users</td></tr>`;
+      return;
+    }
+
+    box.innerHTML = items.map(u => `
+      <tr>
+        <td>${esc((u.first_name || "") + " " + (u.last_name || ""))}</td>
+        <td>${esc(u.role || "-")}</td>
+        <td>${esc((u.created_at || "").slice(0,10))}</td>
+      </tr>
+    `).join("");
+  }
+
+  async function loadRecentPayments(){
+    const box = document.getElementById("recentPaymentsRows");
+    const data = await getJSON(BASE + "backend/admin_recent_payments.php");
+
+    if(!data.ok){
+      box.innerHTML = `<tr><td colspan="3" class="text-danger">Failed</td></tr>`;
+      return;
+    }
+
+    const items = Array.isArray(data.items) ? data.items : [];
+    if(!items.length){
+      box.innerHTML = `<tr><td colspan="3" class="muted">No payments</td></tr>`;
+      return;
+    }
+
+    box.innerHTML = items.map(p => `
+      <tr>
+        <td>${esc(p.user_email || "-")}</td>
+        <td>${esc(p.plan || "-")}</td>
+        <td>LKR ${Number(p.amount || 0).toFixed(2)}</td>
+      </tr>
+    `).join("");
+  }
+
+  async function loadLatestFeedback(){
+    const box = document.getElementById("latestFeedbackRows");
+    const data = await getJSON(BASE + "backend/admin_recent_feedback.php");
+
+    if(!data.ok){
+      box.innerHTML = `<tr><td colspan="3" class="text-danger">Failed</td></tr>`;
+      return;
+    }
+
+    const items = Array.isArray(data.items) ? data.items : [];
+    if(!items.length){
+      box.innerHTML = `<tr><td colspan="3" class="muted">No feedback</td></tr>`;
+      return;
+    }
+
+    box.innerHTML = items.map(f => `
+      <tr>
+        <td>${esc(f.subject || "-")}</td>
+        <td><span class="rating-star">${"★".repeat(Number(f.rating || 0))}</span></td>
+        <td>${Number(f.is_read || 0) === 1 ? "Yes" : "No"}</td>
+      </tr>
+    `).join("");
+  }
+
+  async function loadWorkoutStatusSummary(){
+    const data = await getJSON(BASE + "backend/admin_workout_status_summary.php");
+    if(!data.ok) return;
+
+    const s = data.summary || {};
+    document.getElementById("wsAssigned").textContent = s.assigned ?? 0;
+    document.getElementById("wsStarted").textContent = s.started ?? 0;
+    document.getElementById("wsCompleted").textContent = s.completed ?? 0;
+  }
+
+  async function loadBmiSummary(){
+    const data = await getJSON(BASE + "backend/admin_bmi_summary.php");
+    if(!data.ok) return;
+
+    const s = data.summary || {};
+    document.getElementById("bmiNormal").textContent = s.normal ?? 0;
+    document.getElementById("bmiOverweight").textContent = s.overweight ?? 0;
+    document.getElementById("bmiUnderweight").textContent = s.underweight ?? 0;
+    document.getElementById("bmiObese").textContent = s.obese ?? 0;
+  }
+
+  async function logout() {
+    await fetch(BASE + "backend/logout.php", { credentials: "include" }).catch(()=>{});
+    location.href = BASE + "login.html";
+  }
+
+  document.getElementById("btnLogout").addEventListener("click", logout);
+
+  (async () => {
+    const ok = await guardAdmin();
+    if (!ok) return;
+
+    await Promise.all([
+      loadStats(),
+      loadRecentUsers(),
+      loadRecentPayments(),
+      loadLatestFeedback(),
+      loadWorkoutStatusSummary(),
+      loadBmiSummary()
+    ]);
+  })();
+</script>
+
+</body>
+</html>

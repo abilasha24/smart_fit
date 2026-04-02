@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trainer Dashboard | Smart Fit</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="trainer_layout.css?v=9">
+
+  <style>
+    :root{
+      --bg-overlay: rgba(0,0,0,.22);
+      --card-bg: rgba(255,255,255,.88);
+      --card-border: rgba(255,255,255,.45);
+      --soft-shadow: 0 10px 28px rgba(0,0,0,.14);
+      --glass: blur(5px);
+      --green:#b7eb57;
+      --green-dark:#7fb61f;
+      --text:#111827;
+      --muted:#4b5563;
+    }
+
+    *{ box-sizing:border-box; }
+
+    html,body{
+      height:100%;
+      overflow:hidden;
+    }
+
+    body{
+      margin:0;
+      color:var(--text);
+      background:
+        linear-gradient(var(--bg-overlay), var(--bg-overlay)),
+        url("../../assets/img/trainer-bg.jpg") center/cover no-repeat fixed;
+    }
+
+    .app{
+      height:100vh;
+      display:flex;
+      overflow:hidden;
+    }
+
+    .sidebar{
+      flex-shrink:0;
+      height:100vh;
+      overflow-y:auto;
+      overflow-x:hidden;
+      scrollbar-width:none;
+      background: rgba(20, 39, 3, 0.78) !important;
+    }
+    .sidebar::-webkit-scrollbar{ width:0; height:0; }
+
+    .main{
+      flex:1;
+      height:100vh;
+      overflow:hidden;
+      padding:18px 18px 14px !important;
+      background: transparent !important;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      flex-shrink:0;
+    }
+
+    .page-title{
+      margin:0;
+      font-size:28px;
+      font-weight:800;
+      color:#20c80e;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .page-subtitle{
+      margin-top:4px;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .role-badge{
+      padding:8px 14px;
+      border-radius:999px;
+      background:rgba(17,24,39,.92);
+      color:#fff;
+      font-weight:700;
+      font-size:14px;
+      white-space:nowrap;
+    }
+
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      gap:14px;
+      flex-shrink:0;
+    }
+
+    .content-grid{
+      flex:1;
+      min-height:0;
+      display:grid;
+      grid-template-columns: 1.1fr 1.6fr 1.3fr;
+      gap:14px;
+      align-items:stretch;
+    }
+
+    .glass-card{
+      background:var(--card-bg);
+      border:1px solid var(--card-border);
+      backdrop-filter:var(--glass);
+      -webkit-backdrop-filter:var(--glass);
+      box-shadow:var(--soft-shadow);
+      border-radius:22px;
+    }
+
+    .stat-card{
+      padding:18px 18px 16px;
+      min-height:108px;
+    }
+
+    .stat-top{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:var(--muted);
+      font-size:14px;
+      font-weight:600;
+      margin-bottom:8px;
+    }
+
+    .stat-value{
+      font-size:38px;
+      line-height:1;
+      font-weight:800;
+      color:#000;
+    }
+
+    .panel{
+      padding:16px;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .panel-title{
+      font-size:16px;
+      font-weight:800;
+      color:#000;
+      margin-bottom:12px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-shrink:0;
+    }
+
+    .panel-sub{
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .quick-actions{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+      gap:10px;
+    }
+
+    .quick-actions .btn{
+      border-radius:12px;
+      font-weight:600;
+      padding:10px 12px;
+      white-space:nowrap;
+    }
+
+    .table-wrap{
+      flex:1;
+      min-height:0;
+      overflow:auto;
+      scrollbar-width:thin;
+    }
+
+    .table{
+      margin:0;
+    }
+
+    .table thead th{
+      position:sticky;
+      top:0;
+      z-index:2;
+      background:#d9ecb7;
+      color:#000;
+      font-size:13px;
+      font-weight:800;
+      border-bottom:none;
+    }
+
+    .table td{
+      font-size:13px;
+      vertical-align:middle;
+    }
+
+    .table-sm > :not(caption) > * > *{
+      padding:9px 10px;
+    }
+
+    #recentRows td .fw-bold,
+    #mealAdhereBox td.fw-bold{
+      font-size:13px;
+    }
+
+    .badge-pill{
+      border-radius:999px !important;
+      padding:.45rem .8rem !important;
+      font-size:12px !important;
+      font-weight:700 !important;
+    }
+
+    #mealAdhereBox .table thead th{
+      background:#e7f3cf;
+    }
+
+    .chip{
+      border-radius:14px !important;
+      padding:8px 10px !important;
+    }
+
+    .card-soft{
+      background:var(--card-bg) !important;
+      border:1px solid var(--card-border) !important;
+      border-radius:22px !important;
+      box-shadow:var(--soft-shadow) !important;
+      backdrop-filter:var(--glass);
+      -webkit-backdrop-filter:var(--glass);
+    }
+
+    .subtitle{
+      color:var(--muted) !important;
+    }
+
+    .search-row{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      margin-bottom:10px;
+      flex-shrink:0;
+    }
+
+    .search-row input{
+      max-width:180px;
+    }
+
+    .members-panel .quick-actions{
+      margin-top:4px;
+    }
+
+    .panel-footer-note{
+      margin-top:10px;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    @media (max-width: 1400px){
+      .content-grid{
+        grid-template-columns: 1fr 1.35fr 1.15fr;
+      }
+      .quick-actions .btn{
+        font-size:13px;
+      }
+    }
+
+    @media (max-width: 1200px){
+      .stats-grid{
+        grid-template-columns:repeat(2, minmax(0,1fr));
+      }
+      .content-grid{
+        grid-template-columns:1fr;
+        overflow:auto;
+      }
+      html,body{
+        overflow:auto;
+      }
+      .main{
+        height:auto;
+        overflow:auto;
+      }
+    }
+  </style>
+</head>
+
+<body data-active="dashboard">
+<div class="app d-flex">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">SMART FIT</div>
+    <div class="hello">Hi, <span id="trainerName">trainer</span></div>
+
+    <a class="nav-item" data-key="dashboard" href="dashboard.html">
+      <span class="nav-ico chip-sky"><i class="bi bi-speedometer2"></i></span>
+      <span class="nav-label">Dashboard</span>
+    </a>
+
+    <a class="nav-item" data-key="members" href="members.html">
+      <span class="nav-ico chip-violet"><i class="bi bi-people"></i></span>
+      <span class="nav-label">Members & Assign</span>
+    </a>
+
+    <a class="nav-item" data-key="workouts" href="manage_workouts.html">
+      <span class="nav-ico chip-amber"><i class="bi bi-activity"></i></span>
+      <span class="nav-label">Workouts</span>
+    </a>
+
+    <a class="nav-item" data-key="progress" href="member_progress.html">
+      <span class="nav-ico chip-cyan"><i class="bi bi-graph-up-arrow"></i></span>
+      <span class="nav-label">Progress</span>
+    </a>
+
+    <a class="nav-item" data-key="meal" href="meal_plans.html">
+      <span class="nav-ico chip-green"><i class="bi bi-egg-fried"></i></span>
+      <span class="nav-label">Meal Plans</span>
+    </a>
+
+    <a class="nav-item" data-key="profile" href="profile.html">
+      <span class="nav-ico chip-slate"><i class="bi bi-person"></i></span>
+      <span class="nav-label">Profile</span>
+    </a>
+
+    <a class="nav-item" data-key="nutrition" href="nutrition.html">
+      <span class="nav-ico chip-rose"><i class="bi bi-apple"></i></span>
+      <span class="nav-label">Nutrition</span>
+    </a>
+
+    <a class="nav-item" data-key="schedule" href="schedule.html">
+      <span class="nav-ico chip-indigo"><i class="bi bi-calendar2-week"></i></span>
+      <span class="nav-label">Schedule</span>
+    </a>
+
+    <a class="nav-item" data-key="notifications" href="notifications.html">
+      <span class="nav-ico chip-amber">
+        <i class="bi bi-bell"></i>
+        <span id="notifBadge">0</span>
+      </span>
+      <span class="nav-label">Notifications</span>
+    </a>
+
+    <a class="nav-item" data-key="back" href="../../index.html">
+      <span class="nav-ico chip-slate"><i class="bi bi-globe"></i></span>
+      <span class="nav-label">Back to Website</span>
+    </a>
+
+    <hr class="nav-sep">
+
+    <a class="nav-item logout" href="#" id="btnLogout">
+      <span class="nav-ico" style="background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.18)">
+        <i class="bi bi-box-arrow-right"></i>
+      </span>
+      <span class="nav-label">Logout</span>
+    </a>
+
+    <div class="sidebar-footer">
+      <div class="fw-bold">Trainer Panel</div>
+      <div class="mini">Smart Fit • v1.0</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main flex-grow-1">
+
+    <div class="topbar">
+      <div>
+        <h3 class="page-title">
+          <span class="chip chip-sky"><i class="bi bi-speedometer2"></i></span>
+          Trainer Dashboard
+        </h3>
+        <div class="page-subtitle">Overview & quick actions</div>
+      </div>
+      <span class="role-badge" id="rolePill">Role: Trainer</span>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="glass-card stat-card">
+        <div class="stat-top">
+          <span class="chip chip-violet"><i class="bi bi-people"></i></span>
+          <span>Total Members</span>
+        </div>
+        <div class="stat-value" id="stMembers">0</div>
+      </div>
+
+      <div class="glass-card stat-card">
+        <div class="stat-top">
+          <span class="chip chip-amber"><i class="bi bi-lightning-charge"></i></span>
+          <span>Active Assignments</span>
+        </div>
+        <div class="stat-value" id="stActive">0</div>
+      </div>
+
+      <div class="glass-card stat-card">
+        <div class="stat-top">
+          <span class="chip chip-green"><i class="bi bi-check2-circle"></i></span>
+          <span>Completed Workouts</span>
+        </div>
+        <div class="stat-value" id="stCompleted">0</div>
+      </div>
+
+      <div class="glass-card stat-card">
+        <div class="stat-top">
+          <span class="chip chip-indigo"><i class="bi bi-activity"></i></span>
+          <span>Total Workouts</span>
+        </div>
+        <div class="stat-value" id="stWorkouts">0</div>
+      </div>
+    </div>
+
+    <!-- Main visual area -->
+    <div class="content-grid">
+
+      <div class="glass-card panel members-panel">
+        <div class="panel-title"><i class="bi bi-lightning-charge"></i> Quick Actions</div>
+
+        <div class="quick-actions">
+          <a class="btn btn-dark" href="members.html"><i class="bi bi-people me-2"></i>Members</a>
+          <a class="btn btn-outline-dark" href="manage_workouts.html"><i class="bi bi-activity me-2"></i>Workouts</a>
+          <a class="btn btn-outline-dark" href="member_progress.html"><i class="bi bi-graph-up me-2"></i>Progress</a>
+          <a class="btn btn-outline-dark" href="meal_plans.html"><i class="bi bi-egg-fried me-2"></i>Meal Plans</a>
+          <a class="btn btn-outline-dark" href="nutrition.html"><i class="bi bi-apple me-2"></i>Nutrition</a>
+          <a class="btn btn-outline-dark" href="schedule.html"><i class="bi bi-calendar2-week me-2"></i>Schedule</a>
+          <a class="btn btn-outline-dark" href="profile.html"><i class="bi bi-person me-2"></i>Profile</a>
+          <a class="btn btn-outline-dark" href="notifications.html"><i class="bi bi-bell me-2"></i>Notifications</a>
+        </div>
+
+        <div class="panel-footer-note">Use quick access buttons to manage core trainer tasks.</div>
+      </div>
+
+      <div class="glass-card panel">
+        <div class="panel-title"><i class="bi bi-clock-history"></i> Recent Assignments</div>
+        <div class="table-wrap">
+          <table class="table table-sm mb-0">
+            <thead>
+              <tr>
+                <th>Member</th>
+                <th>Workout</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="recentRows">
+              <tr><td colspan="4" class="subtitle">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="glass-card panel">
+        <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
+          <div>
+            <div class="panel-title mb-1"><i class="bi bi-clipboard-check"></i> Meal Plan Adherence</div>
+            <div class="panel-sub">Last 7 days follow rate</div>
+          </div>
+          <div class="search-row m-0">
+            <input id="mealQ" class="form-control form-control-sm" placeholder="Search member...">
+            <button id="btnMealReload" class="btn btn-dark btn-sm" title="Reload">
+              <i class="bi bi-arrow-repeat"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="mealAdhereBox" class="table-wrap mt-2 subtitle">Loading...</div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<!-- layout js -->
+<script src="trainer_layout.js"></script>
+
+<script>
+const API_BASE = (window.API && typeof window.API === "string" && window.API.trim() !== "")
+  ? window.API
+  : "/SMART_FIT/backend/";
+
+function esc(s){
+  return String(s ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+async function safeJson(res){
+  const txt = await res.text();
+  try { return JSON.parse(txt); }
+  catch {
+    console.log("❌ Invalid JSON from:", res.url);
+    console.log(txt);
+    return { ok:false, message:"Invalid JSON" };
+  }
+}
+
+function badge(status){
+  const s = String(status || "assigned").toLowerCase();
+  if(s === "completed") return `<span class="badge text-bg-success badge-pill">completed</span>`;
+  if(s === "started")   return `<span class="badge text-bg-primary badge-pill">started</span>`;
+  return `<span class="badge text-bg-warning badge-pill text-dark">assigned</span>`;
+}
+
+function setCardError(){
+  document.getElementById("stMembers").textContent   = "—";
+  document.getElementById("stActive").textContent    = "—";
+  document.getElementById("stCompleted").textContent = "—";
+  document.getElementById("stWorkouts").textContent  = "—";
+}
+
+async function loadStats(){
+  try{
+    const r = await fetch(API_BASE + "trainer_get_stats.php", {
+      credentials:"include",
+      cache:"no-store"
+    });
+    const d = await safeJson(r);
+
+    if(!d.ok){
+      console.log("Stats API failed:", d);
+      setCardError();
+      return;
+    }
+
+    document.getElementById("stMembers").textContent   = d.total_members ?? 0;
+    document.getElementById("stActive").textContent    = d.active_assignments ?? 0;
+    document.getElementById("stCompleted").textContent = d.completed_workouts ?? 0;
+    document.getElementById("stWorkouts").textContent  = d.total_workouts ?? 0;
+
+  }catch(err){
+    console.error("Stats error", err);
+    setCardError();
+  }
+}
+
+async function loadRecent(){
+  const recentRows = document.getElementById("recentRows");
+
+  try{
+    const r = await fetch(API_BASE + "trainer_recent_assignments.php", {
+      credentials:"include",
+      cache:"no-store"
+    });
+    const d = await safeJson(r);
+
+    if(!d.ok){
+      recentRows.innerHTML = `<tr><td colspan="4" class="text-danger">${esc(d.message || "Failed")}</td></tr>`;
+      return;
+    }
+
+    const items = Array.isArray(d.items) ? d.items : [];
+    if(!items.length){
+      recentRows.innerHTML = `<tr><td colspan="4" class="subtitle">No recent records</td></tr>`;
+      return;
+    }
+
+    recentRows.innerHTML = items.map(it => `
+      <tr>
+        <td><div class="fw-bold">${esc(it.member_name || it.member_email || "")}</div></td>
+        <td><div class="fw-bold">${esc(it.workout_title || "")}</div></td>
+        <td>${badge(it.status)}</td>
+        <td>${esc(it.assigned_at || "")}</td>
+      </tr>
+    `).join("");
+
+  }catch(err){
+    console.error("Recent error", err);
+    recentRows.innerHTML = `<tr><td colspan="4" class="text-danger">Network/JS error (see Console)</td></tr>`;
+  }
+}
+
+function pctBadge(p){
+  const n = Number(p || 0);
+  if(n >= 70) return `<span class="badge text-bg-success">${n}%</span>`;
+  if(n >= 30) return `<span class="badge text-bg-warning text-dark">${n}%</span>`;
+  return `<span class="badge text-bg-danger">${n}%</span>`;
+}
+
+function todayBadge(ok){
+  return ok
+    ? `<span class="badge text-bg-success">Today ✓</span>`
+    : `<span class="badge text-bg-secondary">Today ✗</span>`;
+}
+
+async function loadMealAdherence(){
+  const box = document.getElementById("mealAdhereBox");
+  const q = (document.getElementById("mealQ").value || "").trim().toLowerCase();
+
+  try{
+    box.innerHTML = `Loading...`;
+
+    const params = new URLSearchParams();
+    params.set("limit", "8");
+    if(q) params.set("q", q);
+
+    const r = await fetch(API_BASE + "trainer_meal_adherence.php?" + params.toString(), {
+      credentials:"include",
+      cache:"no-store"
+    });
+    const d = await safeJson(r);
+
+    if(!d.ok){
+      box.innerHTML = `<div class="text-danger">${esc(d.message || "Failed")}</div>`;
+      return;
+    }
+
+    const items = Array.isArray(d.items) ? d.items : [];
+    if(!items.length){
+      box.innerHTML = `<div class="subtitle">No data</div>`;
+      return;
+    }
+
+    box.innerHTML = `
+      <table class="table table-sm mb-0">
+        <thead>
+          <tr>
+            <th>Member</th>
+            <th>Email</th>
+            <th>7 Days</th>
+            <th>Rate</th>
+            <th>Today</th>
+            <th>Last Follow</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${items.map(it => `
+            <tr>
+              <td class="fw-bold">${esc(it.name || "Member")}</td>
+              <td class="subtitle">${esc(it.email || "")}</td>
+              <td>${esc(it.last7_days ?? 0)}</td>
+              <td>${pctBadge(it.adherence_pct)}</td>
+              <td>${todayBadge(!!it.followed_today)}</td>
+              <td class="subtitle">${esc(it.last_follow_date || "-")}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+
+  }catch(err){
+    console.error("Meal adherence error", err);
+    box.innerHTML = `<div class="text-danger">Network/JS error (see Console)</div>`;
+  }
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  loadStats();
+  loadRecent();
+  loadMealAdherence();
+
+  document.getElementById("btnMealReload").addEventListener("click", () => loadMealAdherence());
+  document.getElementById("mealQ").addEventListener("keydown", (e) => {
+    if(e.key === "Enter") loadMealAdherence();
+  });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manage Trainers | Smart Fit</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- ✅ Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <style>
+    body{
+  margin:0;
+  color: var(--text);
+
+  background:
+    linear-gradient(rgba(0,0,0,.15), rgba(0,0,0,.15)),
+    url("../../assets/img/admin-bg.jpg") center/cover no-repeat fixed;
+
+  background-size: cover;
+}
+
+/* Sidebar */
+ .sidebar{
+  width:260px;
+  min-height:100vh;
+  background:#000000;
+  color:#ffffff;
+}
+
+.sidebar a{
+  color:#cbd5e1;
+  text-decoration:none;
+  display:block;
+  padding:10px 14px;
+  border-radius:10px;
+}
+
+.sidebar a:hover,
+.sidebar a.active{
+  background:#14532d;
+  color:#ffffff;
+}
+
+.brand{
+  font-weight:700;
+  letter-spacing:.5px;
+}
+
+/* Cards */
+.card-soft{
+  border:0;
+  border-radius:16px;
+  background:#ffffff;
+  box-shadow:0 12px 28px rgba(0,0,0,.08);
+}
+
+/* Muted text */
+.muted{
+  color:#4b5563;
+}
+
+/* Buttons */
+.btn-dark{
+  background:#166534;
+  border:0;
+}
+
+.btn-dark:hover{
+  background:#14532d;
+}
+
+.btn-outline-dark{
+  border-color:#166534;
+  color:#166534;
+}
+
+.btn-outline-dark:hover{
+  background:#166534;
+  color:#ffffff;
+}
+
+/* Table */
+.table thead th{
+  font-size:.85rem;
+  color:#4b5563;
+  font-weight:600;
+}
+
+/* Status pills */
+.pill{
+  border-radius:999px;
+  padding:.25rem .6rem;
+  font-size:.78rem;
+  font-weight:600;
+  display:inline-block;
+}
+
+.pill-active{
+  background:#166534;
+  color:#ffffff;
+}
+
+.pill-blocked{
+  background:#b91c1c;
+  color:#ffffff;
+}
+  </style>
+</head>
+<body>
+
+<div class="d-flex">
+  <aside class="sidebar p-3">
+    <div class="brand fs-5 mb-3"><i class="bi bi-heart-pulse-fill me-2"></i>SMART FIT • Admin</div>
+    <div class="small text-white-50 mb-3">Control Center</div>
+
+    <a href="dashboard.html"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+    <a href="users.html"><i class="bi bi-people me-2"></i>Manage Users</a>
+    <a class="active" href="trainers.html"><i class="bi bi-person-badge me-2"></i>Manage Trainers</a>
+    <a href="workouts.html"><i class="bi bi-activity me-2"></i>Manage Workouts</a>
+    <a href="payments.html"><i class="bi bi-cash-coin me-2"></i>Payments</a>
+    <a href="feedback.html"><i class="bi bi-chat-left-text me-2"></i>Feedback</a>
+    <a href="../../index.html"><i class="bi bi-arrow-left me-2"></i>Back to Home</a>
+
+    <hr class="border-secondary my-3"/>
+    <button id="btnLogout" class="btn btn-outline-light w-100"><i class="bi bi-box-arrow-right me-2"></i>Logout</button>
+  </aside>
+
+  <main class="flex-grow-1 p-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+      <div>
+        <h3 class="mb-0"><i class="bi bi-person-badge me-2"></i>Manage Trainers</h3>
+        <div class="muted">Search trainers + Activate/Block + (Optional) Create trainer account</div>
+      </div>
+      <div class="text-end small muted"><i class="bi bi-shield-check me-1"></i>Role: admin</div>
+    </div>
+
+    <!-- Filters + Create -->
+    <div class="card card-soft p-3 mb-3">
+      <div class="row g-2 align-items-center">
+        <div class="col-md-6">
+          <input id="txtQ" class="form-control" placeholder="Search by name / email / phone..." />
+        </div>
+        <div class="col-md-2 d-grid">
+          <button id="btnSearch" class="btn btn-dark"><i class="bi bi-search me-2"></i>Search</button>
+        </div>
+        <div class="col-md-2 d-grid">
+          <button id="btnReset" class="btn btn-outline-dark"><i class="bi bi-arrow-counterclockwise me-2"></i>Reset</button>
+        </div>
+        <div class="col-md-2 d-grid">
+          <button id="btnAdd" class="btn btn-outline-dark"><i class="bi bi-plus-circle me-2"></i>New Trainer</button>
+        </div>
+      </div>
+      <div class="small muted mt-2">Tip: Trainers list only. Use Block/Activate for status.</div>
+    </div>
+
+    <!-- Table -->
+    <div class="card card-soft p-3">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="fw-semibold"><i class="bi bi-list-ul me-2"></i>Trainers</div>
+        <div class="small muted" id="lblCount">—</div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th><i class="bi bi-person me-1"></i>Name</th>
+              <th><i class="bi bi-envelope me-1"></i>Email</th>
+              <th><i class="bi bi-telephone me-1"></i>Phone</th>
+              <th>Plan</th>
+              <th>Status</th>
+              <th class="text-nowrap"><i class="bi bi-calendar3 me-1"></i>Created</th>
+              <th style="width:220px;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="tbTrainers">
+            <tr><td colspan="8" class="text-center muted py-4">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="msg" class="mt-2"></div>
+    </div>
+  </main>
+</div>
+
+<!-- Add Trainer Modal -->
+<div class="modal fade" id="mdlAdd" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:16px;">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i>Create Trainer Account</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="row g-2">
+          <div class="col-md-6">
+            <label class="form-label small muted">First name</label>
+            <input id="aFirst" class="form-control" placeholder="Trainer" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small muted">Last name</label>
+            <input id="aLast" class="form-control" placeholder="User" />
+          </div>
+          <div class="col-12">
+            <label class="form-label small muted">Email</label>
+            <input id="aEmail" type="email" class="form-control" placeholder="trainer2@smartfit.lk" />
+          </div>
+          <div class="col-12">
+            <label class="form-label small muted">Phone</label>
+            <input id="aPhone" class="form-control" placeholder="+94..." />
+          </div>
+          <div class="col-12">
+            <label class="form-label small muted">Password</label>
+            <input id="aPass" type="password" class="form-control" placeholder="min 6 chars" />
+          </div>
+          <div class="col-12">
+            <label class="form-label small muted">Plan</label>
+            <select id="aPlan" class="form-select">
+              <option value="basic">basic</option>
+              <option value="premium">premium</option>
+              <option value="pro">pro</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <div class="alert alert-warning py-2 mb-0 small">
+              <i class="bi bi-info-circle me-1"></i>
+              Note: This uses backend <code>admin_create_trainer.php</code> (optional). If you don’t add that file, the page still works (listing & block/activate).
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline-dark" data-bs-dismiss="modal"><i class="bi bi-x-circle me-1"></i>Cancel</button>
+        <button id="btnCreate" class="btn btn-dark"><i class="bi bi-check-circle me-1"></i>Create</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  const BASE = "../../";
+  const mdlAdd = new bootstrap.Modal(document.getElementById("mdlAdd"));
+
+  async function guardAdmin() {
+    const r = await fetch(BASE + "backend/check_auth.php", { credentials: "include" });
+    if (r.status === 401) { location.href = BASE + "login.html"; return false; }
+    const data = await r.json();
+    if ((data.role || "") !== "admin") {
+      if (data.role === "trainer") location.href = BASE + "dashboard/trainer/dashboard.html";
+      else location.href = BASE + "dashboard/member/dashboard.html";
+      return false;
+    }
+    return true;
+  }
+
+  async function logout() {
+    await fetch(BASE + "backend/logout.php", { credentials: "include" }).catch(()=>{});
+    location.href = BASE + "login.html";
+  }
+
+  function esc(s){ return String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+  function toast(text, ok=true){
+    const el = document.getElementById("msg");
+    el.innerHTML = `<div class="alert ${ok?'alert-success':'alert-danger'} py-2 mb-0">${esc(text)}</div>`;
+    setTimeout(()=>{ el.innerHTML = ""; }, 2500);
+  }
+
+  function statusPill(st){
+    const s = (st || "active").toLowerCase();
+    if (s === "blocked") return `<span class="pill pill-blocked"><i class="bi bi-slash-circle me-1"></i>Blocked</span>`;
+    return `<span class="pill pill-active"><i class="bi bi-check-circle me-1"></i>Active</span>`;
+  }
+
+  async function loadTrainers() {
+    const q = document.getElementById("txtQ").value.trim();
+    const tb = document.getElementById("tbTrainers");
+    tb.innerHTML = `<tr><td colspan="8" class="text-center muted py-4">Loading…</td></tr>`;
+
+    const params = new URLSearchParams();
+    params.set("role", "trainer");
+    if (q) params.set("q", q);
+
+    const url = BASE + "backend/admin_get_users.php?" + params.toString();
+    const r = await fetch(url, { credentials: "include" });
+    const data = await r.json().catch(()=>({ok:false}));
+
+    if (!data.ok) {
+      tb.innerHTML = `<tr><td colspan="8" class="text-center text-danger py-4">Failed to load</td></tr>`;
+      return;
+    }
+
+    const list = data.users || [];
+    document.getElementById("lblCount").textContent = `${list.length} trainer(s)`;
+
+    if (!list.length) {
+      tb.innerHTML = `<tr><td colspan="8" class="text-center muted py-4">No trainers found</td></tr>`;
+      return;
+    }
+
+    tb.innerHTML = list.map(u => {
+      const st = (u.status || "active").toLowerCase();
+      const btn = st === "blocked"
+        ? `<button class="btn btn-sm btn-success btnStatus" data-next="active"><i class="bi bi-check-circle me-1"></i>Activate</button>`
+        : `<button class="btn btn-sm btn-outline-danger btnStatus" data-next="blocked"><i class="bi bi-slash-circle me-1"></i>Block</button>`;
+
+      return `
+        <tr data-id="${u.id}">
+          <td>${u.id}</td>
+          <td>${esc(u.first_name)} ${esc(u.last_name)}</td>
+          <td>${esc(u.email)}</td>
+          <td>${esc(u.phone)}</td>
+          <td>
+            <select class="form-select form-select-sm selPlan">
+              <option value="basic" ${u.plan==='basic'?'selected':''}>basic</option>
+              <option value="premium" ${u.plan==='premium'?'selected':''}>premium</option>
+              <option value="pro" ${u.plan==='pro'?'selected':''}>pro</option>
+            </select>
+          </td>
+          <td>${statusPill(u.status)}</td>
+          <td class="small muted text-nowrap">${esc(u.created_at)}</td>
+          <td class="d-flex gap-2">
+            <button class="btn btn-sm btn-dark btnSave"><i class="bi bi-save me-1"></i>Save</button>
+            ${btn}
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  async function saveRow(btn) {
+    const tr = btn.closest("tr");
+    const user_id = Number(tr.dataset.id);
+    const plan = tr.querySelector(".selPlan").value;
+
+    btn.disabled = true;
+    btn.innerHTML = `<i class="bi bi-hourglass-split me-1"></i>Saving…`;
+
+    const r = await fetch(BASE + "backend/admin_update_user.php", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id, plan })
+    });
+
+    btn.disabled = false;
+    btn.innerHTML = `<i class="bi bi-save me-1"></i>Save`;
+
+    const data = await r.json().catch(()=>({ok:false}));
+    if (data.ok) toast("Updated ✅", true);
+    else toast(data.message || "Update failed", false);
+  }
+
+  async function toggleStatus(btn) {
+    const tr = btn.closest("tr");
+    const id = Number(tr.dataset.id);
+    const status = btn.dataset.next;
+
+    btn.disabled = true;
+    const old = btn.innerHTML;
+    btn.innerHTML = `<i class="bi bi-hourglass-split me-1"></i>Working…`;
+
+    const r = await fetch(BASE + "backend/admin_update_user_status.php", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, status })
+    });
+
+    btn.disabled = false;
+    btn.innerHTML = old;
+
+    const data = await r.json().catch(()=>({ok:false}));
+    if (data.ok) {
+      toast(`Status updated → ${status} ✅`, true);
+      loadTrainers();
+    } else {
+      toast(data.message || "Status update failed", false);
+    }
+  }
+
+  // Optional: create trainer
+  async function createTrainer() {
+    const first_name = document.getElementById("aFirst").value.trim();
+    const last_name  = document.getElementById("aLast").value.trim();
+    const email      = document.getElementById("aEmail").value.trim();
+    const phone      = document.getElementById("aPhone").value.trim();
+    const password   = document.getElementById("aPass").value.trim();
+    const plan       = document.getElementById("aPlan").value;
+
+    if (!email || !password) { toast("Email + Password required", false); return; }
+
+    const btn = document.getElementById("btnCreate");
+    btn.disabled = true;
+    btn.innerHTML = `<i class="bi bi-hourglass-split me-1"></i>Creating…`;
+
+    const r = await fetch(BASE + "backend/admin_create_trainer.php", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ first_name, last_name, email, phone, password, plan })
+    });
+
+    btn.disabled = false;
+    btn.innerHTML = `<i class="bi bi-check-circle me-1"></i>Create`;
+
+    const data = await r.json().catch(()=>({ok:false}));
+    if (data.ok) {
+      toast("Trainer created ✅", true);
+      mdlAdd.hide();
+      document.getElementById("aFirst").value = "";
+      document.getElementById("aLast").value  = "";
+      document.getElementById("aEmail").value = "";
+      document.getElementById("aPhone").value = "";
+      document.getElementById("aPass").value  = "";
+      document.getElementById("aPlan").value  = "basic";
+      loadTrainers();
+    } else {
+      toast(data.message || "Create failed (add backend/admin_create_trainer.php)", false);
+    }
+  }
+
+  // events
+  document.getElementById("btnLogout").addEventListener("click", logout);
+  document.getElementById("btnSearch").addEventListener("click", loadTrainers);
+  document.getElementById("btnReset").addEventListener("click", () => {
+    document.getElementById("txtQ").value = "";
+    loadTrainers();
+  });
+
+  document.getElementById("btnAdd").addEventListener("click", () => mdlAdd.show());
+  document.getElementById("btnCreate").addEventListener("click", createTrainer);
+
+  document.addEventListener("click", (e) => {
+    if (e.target.classList.contains("btnSave")) saveRow(e.target);
+    if (e.target.classList.contains("btnStatus")) toggleStatus(e.target);
+  });
+
+  (async () => {
+    const ok = await guardAdmin();
+    if (ok) loadTrainers();
+  })();
+</script>
+
+</body>
+</html>

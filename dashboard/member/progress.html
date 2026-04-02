@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Progress | Smart Fit</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Bootstrap (keep) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome (for icon sidebar like dashboard) -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <!-- Chart.js (keep) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root{
+      --bg1:#c8f06b;
+      --bg2:#b7ea5a;
+
+      --sidebar:#111318;
+      --sidebar2:#0c0e12;
+
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#6b7280;
+
+      --green:#b8f14d;
+      --green2:#7ee000;
+
+      --line:#e5e7eb;
+      --shadow: 0 18px 50px rgba(0,0,0,.18);
+
+      --radius:18px;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      min-height:100vh;
+      background: url("../../assets/img/member-bg.jpg") center/cover no-repeat fixed;
+      overflow:hidden;
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background-image:
+        radial-gradient(circle at 20px 20px, rgba(255,255,255,.18) 2px, transparent 2px),
+        radial-gradient(circle at 60px 60px, rgba(0,0,0,.05) 2px, transparent 2px);
+      background-size: 80px 80px;
+      opacity:.45;
+      pointer-events:none;
+    }
+
+    .app{
+      height:100vh;
+      display:flex;
+      padding: 22px;
+      gap: 18px;
+      position:relative;
+      z-index:1;
+    }
+
+    /* Sidebar (dashboard icon style) */
+    .sidebar{
+      width: 88px;
+      min-width:88px;
+      background: linear-gradient(180deg, var(--sidebar), var(--sidebar2));
+      border-radius: 26px;
+      padding: 18px 12px;
+      box-shadow: var(--shadow);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 14px;
+    }
+
+    .brand{
+      width:44px;height:44px;border-radius:14px;
+      display:grid;place-items:center;
+      color: var(--green2);
+      border:1px solid rgba(184,241,77,.35);
+      background: rgba(255,255,255,.06);
+      margin-bottom:4px;
+    }
+
+    .nav-ico{
+      width:44px;height:44px;border-radius:16px;
+      display:grid;place-items:center;
+      color:#cbd5e1;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      cursor:pointer;
+      transition:.18s ease;
+      text-decoration:none;
+    }
+    .nav-ico:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.08);
+    }
+    .nav-ico.active{
+      background: linear-gradient(135deg, var(--green), var(--green2));
+      color:#0b0f14;
+      border-color: transparent;
+    }
+    .spacer{ flex:1; }
+
+    /* Main panel */
+    .main{
+      flex:1;
+      background: rgba(255,255,255,.58);
+      border: 1px solid rgba(255,255,255,.6);
+      backdrop-filter: blur(10px);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      overflow:hidden;
+    }
+
+    .content{
+      height:100%;
+      overflow:auto;
+      padding-right: 6px;
+    }
+    .content::-webkit-scrollbar{ width:10px; }
+    .content::-webkit-scrollbar-thumb{ background: rgba(15,23,42,.18); border-radius: 20px; }
+
+    /* top header */
+    .top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .hello h5{ margin:0; font-weight: 900; }
+    .hello p{ margin:2px 0 0; color: var(--muted); font-size: 13px; }
+
+    .pill{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: 800;
+      font-size: 13px;
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      box-shadow: 0 10px 25px rgba(0,0,0,.08);
+      user-select:none;
+      white-space:nowrap;
+      color:#111827;
+    }
+
+    .panel{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 12px 30px rgba(0,0,0,.08);
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .stat{
+      border-radius:16px;
+      background:#fff;
+      box-shadow:0 12px 30px rgba(0,0,0,.06);
+      border:1px solid #eef2f7;
+      padding:16px;
+    }
+    .stat .big{ font-size:1.6rem; font-weight:900; color:#111827; }
+
+    .muted{ color: var(--muted); font-weight:800; font-size: 12px; }
+
+    .card.shadow-sm{
+      border-radius: 18px !important;
+      border:1px solid #eef2f7 !important;
+      box-shadow: 0 12px 30px rgba(0,0,0,.06) !important;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR (icon style like main dashboard) -->
+  <aside class="sidebar">
+    <div class="brand"><i class="fa-solid fa-dumbbell"></i></div>
+
+    <a class="nav-ico" href="dashboard.html" title="Dashboard"><i class="fa-solid fa-house"></i></a>
+    <a class="nav-ico" href="workouts.html" title="Workouts"><i class="fa-solid fa-dumbbell"></i></a>
+    <a class="nav-ico" href="myworkout.html" title="My Workouts"><i class="fa-solid fa-list-check"></i></a>
+    <a class="nav-ico active" href="progress.html" title="Progress"><i class="fa-solid fa-chart-line"></i></a>
+    <a class="nav-ico" href="meal_plans.html" title="Meal Plans"><i class="fa-solid fa-bowl-food"></i></a>
+    <a class="nav-ico" href="nutrition.html" title="Nutrition"><i class="fa-solid fa-apple-whole"></i></a>
+    <a class="nav-ico" href="schedule.html" title="Schedule"><i class="fa-solid fa-calendar-days"></i></a>
+    <a class="nav-ico" href="subscription.html" title="Subscription"><i class="fa-solid fa-credit-card"></i></a>
+
+    <a class="nav-ico" href="bmi.html" title="BMI"><i class="fa-solid fa-calculator"></i></a>
+    <a class="nav-ico" href="feedback.html" title="Feedback"><i class="fa-solid fa-comment-dots"></i></a>
+
+    <div class="spacer"></div>
+
+    <a class="nav-ico" href="../../index.html" title="Back to Website"><i class="fa-solid fa-globe"></i></a>
+    <a class="nav-ico" href="notifications.html" title="Notifications"><i class="fa-regular fa-bell"></i></a>
+    <a class="nav-ico" href="profile.html" title="Profile"><i class="fa-solid fa-user"></i></a>
+    <a class="nav-ico" href="#" id="btnLogout" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></a>
+  </aside>
+
+  <!-- MAIN -->
+  <section class="main">
+    <div class="content">
+
+      <div class="top">
+        <div class="hello">
+          <h5>📈 Progress</h5>
+          <p>Your workout activity summary</p>
+        </div>
+        <div class="pill" id="statusText"></div>
+      </div>
+
+      <div id="msg" class="text-danger mb-3"></div>
+
+      <!-- STATS -->
+      <div class="row g-3 mb-3">
+        <div class="col-md-4">
+          <div class="stat">
+            <div class="text-muted">Completed Workouts</div>
+            <div class="big" id="statCompleted">0</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat">
+            <div class="text-muted">Started (Not Completed)</div>
+            <div class="big" id="statStarted">0</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat">
+            <div class="text-muted">Total Calories (Completed)</div>
+            <div class="big" id="statCalories">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHARTS -->
+      <div class="row g-3">
+        <div class="col-lg-4">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h6 class="fw-bold mb-3">Status Breakdown</h6>
+              <canvas id="chartStatus" height="220"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-8">
+          <div class="card shadow-sm mb-3">
+            <div class="card-body">
+              <h6 class="fw-bold mb-3">Calories Burned (Completed) — by Date</h6>
+              <canvas id="chartCalories" height="120"></canvas>
+            </div>
+          </div>
+
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h6 class="fw-bold mb-3">Workout Minutes (Completed) — by Date</h6>
+              <canvas id="chartMinutes" height="120"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+const API = {
+  whoami: "../../backend/whoami.php",
+  progress: "../../backend/get_progress.php",
+  logout: "../../backend/logout.php"
+};
+
+let statusChart, caloriesChart, minutesChart;
+
+function setStatus(t){ document.getElementById("statusText").textContent = t || ""; }
+function showMsg(t){ document.getElementById("msg").textContent = t || ""; }
+
+async function fetchJSON(url, opts={}){
+  const res = await fetch(url, { credentials:"same-origin", ...opts });
+  return await res.json();
+}
+
+/* ✅ FAST UI (show localStorage name instantly) */
+(function(){
+  const saved = localStorage.getItem("loggedUserName");
+  if(saved){
+    const nav = document.getElementById("navUsername");
+    if(nav) nav.textContent = saved;
+  }
+})();
+
+/* ✅ AUTH + REAL NAME from whoami (session) */
+async function authGuard(){
+  try{
+    const me = await fetchJSON(API.whoami);
+
+    if(!me.logged_in){
+      window.location.href = "../../login.html";
+      return null;
+    }
+
+    if(((me.role||"member").toLowerCase()) !== "member"){
+      window.location.href = "../../login.html";
+      return null;
+    }
+
+    const displayName = (me.name || me.username || "Member").trim();
+
+    // ✅ update sidebar name (kept, even though icon sidebar doesn't display text)
+    const nav = document.getElementById("navUsername");
+    if(nav) nav.textContent = displayName;
+
+    // ✅ save for all pages
+    localStorage.setItem("loggedUserName", displayName);
+    localStorage.setItem("loggedUserRole", (me.role || "member").toLowerCase());
+
+    return me;
+  }catch(e){
+    window.location.href = "../../login.html";
+    return null;
+  }
+}
+
+function sum(arr){ return (arr||[]).reduce((a,b)=>a + (Number(b)||0), 0); }
+
+async function loadProgress(){
+  showMsg(""); setStatus("Loading...");
+
+  try{
+    const data = await fetchJSON(API.progress);
+
+    if(!data.ok){
+      showMsg(data.message || "Failed to load progress");
+      setStatus("");
+      return;
+    }
+
+    const started = Number(data.statusCounts?.started ?? 0);
+    const completed = Number(data.statusCounts?.completed ?? 0);
+
+    const daily = Array.isArray(data.daily) ? data.daily : [];
+    const labels = daily.map(x => x.date);
+    const calories = daily.map(x => Number(x.calories||0));
+    const minutes  = daily.map(x => Number(x.minutes||0));
+
+    document.getElementById("statStarted").textContent = started;
+    document.getElementById("statCompleted").textContent = completed;
+    document.getElementById("statCalories").textContent = sum(calories);
+
+    renderStatusChart(started, completed);
+    renderChart("chartCalories", "Calories", labels, calories, "line");
+    renderChart("chartMinutes", "Minutes", labels, minutes, "bar");
+
+    setStatus("Ready ✅");
+  }catch(e){
+    console.error(e);
+    showMsg("Network / JSON error. Check backend/get_progress.php");
+    setStatus("");
+  }
+}
+
+function renderStatusChart(started, completed){
+  const ctx = document.getElementById("chartStatus");
+  if(statusChart) statusChart.destroy();
+  statusChart = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: ["Started", "Completed"],
+      datasets: [{ data: [started, completed] }]
+    },
+    options: { responsive:true, plugins:{ legend:{ position:"bottom" } } }
+  });
+}
+
+function renderChart(id, label, labels, values, type){
+  const ctx = document.getElementById(id);
+  if(id === "chartCalories" && caloriesChart) caloriesChart.destroy();
+  if(id === "chartMinutes" && minutesChart) minutesChart.destroy();
+
+  const ch = new Chart(ctx, {
+    type,
+    data: { labels, datasets: [{ label, data: values, tension:0.3 }] },
+    options: { responsive:true, scales:{ y:{ beginAtZero:true } } }
+  });
+
+  if(id === "chartCalories") caloriesChart = ch;
+  else minutesChart = ch;
+}
+
+/* ✅ Logout */
+document.getElementById("btnLogout").addEventListener("click", async (e) => {
+  e.preventDefault();
+  try{
+    await fetch(API.logout, { method:"POST", credentials:"same-origin" });
+  }catch{}
+  localStorage.removeItem("loggedUserName");
+  localStorage.removeItem("loggedUserRole");
+  window.location.href = "../../login.html";
+});
+
+/* ✅ init */
+(async function(){
+  const me = await authGuard();
+  if(me) await loadProgress();
+})();
+</script>
+
+</body>
+</html>

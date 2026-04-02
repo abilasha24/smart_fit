@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Meal Plans | Trainer | Smart Fit</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- ✅ Use SAME layout CSS for ALL trainer pages -->
+  <link rel="stylesheet" href="trainer_layout.css">
+
+  <style>
+    /* Page-only small styles */
+    .page-badge{ border-radius:999px; padding:.35rem .6rem; }
+    @media (max-width: 768px){
+      .sidebar{ display:none; }
+      .main{ padding:18px 14px; }
+    }
+  </style>
+</head>
+
+<body data-active="meal">
+<div class="app d-flex">
+
+  <!-- ✅ STANDARD SIDEBAR (same style as dashboard) -->
+  <aside class="sidebar">
+    <div class="brand">SMART FIT</div>
+    <div class="hello">Hi, <span id="trainerName">trainer</span></div>
+
+    <a class="nav-item" data-key="dashboard" href="dashboard.html">
+      <span class="nav-ico chip-sky"><i class="bi bi-speedometer2"></i></span>
+      <span class="nav-label">Dashboard</span>
+    </a>
+
+    <a class="nav-item" data-key="members" href="members.html">
+      <span class="nav-ico chip-violet"><i class="bi bi-people"></i></span>
+      <span class="nav-label">Members & Assign</span>
+    </a>
+
+    <a class="nav-item" data-key="workouts" href="manage_workouts.html">
+      <span class="nav-ico chip-amber"><i class="bi bi-activity"></i></span>
+      <span class="nav-label">Workouts</span>
+    </a>
+
+    <a class="nav-item" data-key="progress" href="member_progress.html">
+      <span class="nav-ico chip-cyan"><i class="bi bi-graph-up-arrow"></i></span>
+      <span class="nav-label">Progress</span>
+    </a>
+
+    <a class="nav-item" data-key="meal" href="meal_plans.html">
+      <span class="nav-ico chip-green"><i class="bi bi-egg-fried"></i></span>
+      <span class="nav-label">Meal Plans</span>
+    </a>
+
+    <a class="nav-item" data-key="nutrition" href="nutrition.html">
+      <span class="nav-ico chip-rose"><i class="bi bi-apple"></i></span>
+      <span class="nav-label">Nutrition</span>
+    </a>
+
+    <a class="nav-item" data-key="schedule" href="schedule.html">
+      <span class="nav-ico chip-indigo"><i class="bi bi-calendar2-week"></i></span>
+      <span class="nav-label">Schedule</span>
+    </a>
+
+    <a class="nav-item" data-key="profile" href="profile.html">
+      <span class="nav-ico chip-slate"><i class="bi bi-person"></i></span>
+      <span class="nav-label">Profile</span>
+    </a>
+
+    <!-- ✅ Notifications with badge -->
+    <a class="nav-item" data-key="notifications" href="notifications.html">
+      <span class="nav-ico chip-amber">
+        <i class="bi bi-bell"></i>
+        <span id="notifBadge">0</span>
+      </span>
+      <span class="nav-label">Notifications</span>
+    </a>
+
+    <a class="nav-item" data-key="back" href="../../index.html">
+      <span class="nav-ico chip-slate"><i class="bi bi-globe"></i></span>
+      <span class="nav-label">Back to Website</span>
+    </a>
+
+    <hr class="nav-sep">
+
+    <a class="nav-item logout" href="#" id="btnLogout">
+      <span class="nav-ico" style="background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.18)">
+        <i class="bi bi-box-arrow-right"></i>
+      </span>
+      <span class="nav-label">Logout</span>
+    </a>
+
+    <div class="sidebar-footer">
+      <div class="fw-bold">Trainer Panel</div>
+      <div class="mini">Smart Fit • v1.0</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main flex-grow-1">
+
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div>
+        <h3 class="mb-1 d-flex align-items-center gap-2">
+          <span class="chip chip-green"><i class="bi bi-egg-fried"></i></span>
+          Meal Plans Management
+        </h3>
+        <div class="subtitle">Create plans that members can follow</div>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <a class="btn btn-outline-dark btn-pill" href="nutrition.html">
+          <i class="bi bi-apple me-2"></i>Open Nutrition Hub
+        </a>
+        <button class="btn btn-dark btn-pill" id="btnAddTop">
+          <i class="bi bi-plus-circle me-2"></i>Add Plan
+        </button>
+        <span class="badge text-bg-dark page-badge" id="rolePill">Role: Trainer</span>
+      </div>
+    </div>
+
+    <div class="row g-3 mt-3">
+      <!-- Create -->
+      <div class="col-lg-6">
+        <div class="card-soft p-3" id="newPlanBox">
+          <div class="fw-bold mb-2"><i class="bi bi-plus-circle me-2"></i>New Plan</div>
+
+          <label class="form-label subtitle mb-1">Title</label>
+          <input id="title" class="form-control" placeholder="e.g., Beginner Fat Loss Meal Plan" />
+
+          <label class="form-label subtitle mt-3 mb-1">Content</label>
+          <textarea id="content" class="form-control" rows="7" placeholder="Write tips / meals / schedule..."></textarea>
+
+          <div class="subtitle mt-2" style="font-size:12px;">
+            Members will see this inside meal plans section.
+          </div>
+
+          <div class="d-flex gap-2 mt-3">
+            <button class="btn btn-dark btn-pill" id="btnSave"><i class="bi bi-check2-circle me-2"></i>Save</button>
+            <button class="btn btn-outline-secondary btn-pill" id="btnClear"><i class="bi bi-x-circle me-2"></i>Clear</button>
+          </div>
+
+          <div class="alert alert-danger mt-3 d-none" id="err"></div>
+          <div class="alert alert-success mt-3 d-none" id="okMsg"></div>
+        </div>
+      </div>
+
+      <!-- List -->
+      <div class="col-lg-6">
+        <div class="card-soft p-3">
+          <div class="fw-bold mb-2"><i class="bi bi-journal-text me-2"></i>My Meal Plans</div>
+          <div class="subtitle mb-2" style="font-size:13px;">Latest plans created by trainer</div>
+          <div id="list" class="subtitle">Loading...</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ✅ Use SAME layout JS for ALL trainer pages -->
+<script src="trainer_layout.js"></script>
+
+<script>
+(() => {
+  const BASE2 = "../../";
+  const API2  = BASE2 + "backend/";
+
+  const title = document.getElementById("title");
+  const content = document.getElementById("content");
+  const list = document.getElementById("list");
+  const err = document.getElementById("err");
+  const okMsg = document.getElementById("okMsg");
+  const btnSave = document.getElementById("btnSave");
+  const btnClear = document.getElementById("btnClear");
+  const btnAddTop = document.getElementById("btnAddTop");
+  const newPlanBox = document.getElementById("newPlanBox");
+
+  function esc(s){
+    return String(s??"")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function showErr(msg){
+    err.textContent = msg;
+    err.classList.remove("d-none");
+    okMsg.classList.add("d-none");
+  }
+  function showOk(msg){
+    okMsg.textContent = msg;
+    okMsg.classList.remove("d-none");
+    err.classList.add("d-none");
+  }
+  function clearMsgs(){
+    err.classList.add("d-none");
+    okMsg.classList.add("d-none");
+  }
+
+  async function loadPlans(){
+    const r = await fetch(API2+"trainer_meal_plans_list.php", { credentials:"include", cache:"no-store" }).catch(()=>null);
+    if(!r){ list.innerHTML = `<div class="text-danger">API not reachable</div>`; return; }
+
+    const d = await r.json().catch(()=>({ok:false}));
+    if(!d.ok){
+      list.innerHTML = `<div class="text-danger">Failed (check API: trainer_meal_plans_list.php)</div>`;
+      return;
+    }
+
+    const items = d.plans || d.items || [];
+    if(!items.length){
+      list.innerHTML = `<div class="subtitle">No plans yet</div>`;
+      return;
+    }
+
+    list.innerHTML = items.map(it=>`
+      <div class="border rounded-4 p-3 mb-2" style="border-color:#e5e7eb;">
+        <div class="fw-bold">${esc(it.title||"")}</div>
+        <div class="subtitle" style="white-space:pre-wrap;">${esc(it.content||"")}</div>
+        <div class="subtitle mt-2" style="font-size:12px;">${esc(it.created_at||"")}</div>
+      </div>
+    `).join("");
+  }
+
+  async function savePlan(){
+    clearMsgs();
+
+    const payload = { title: title.value.trim(), content: content.value.trim() };
+    if(!payload.title) return showErr("Title required");
+    if(!payload.content) return showErr("Content required");
+
+    const r = await fetch(API2+"trainer_meal_plan_save.php",{
+      method:"POST",
+      credentials:"include",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    }).catch(()=>null);
+
+    if(!r) return showErr("API not reachable");
+    const d = await r.json().catch(()=>({ok:false,message:"Invalid JSON"}));
+    if(!d.ok) return showErr(d.message||"Save failed");
+
+    showOk("Saved successfully!");
+    title.value=""; content.value="";
+    loadPlans();
+  }
+
+  function applyDraftMealPlan(){
+    const raw = localStorage.getItem("sf_mealplan_draft");
+    if(!raw) return;
+
+    let draft=null;
+    try{ draft = JSON.parse(raw); }catch{ return; }
+    if(!draft || !draft.title || !draft.content) return;
+
+    title.value = draft.title;
+    content.value = draft.content;
+
+    showOk("Template loaded from Nutrition Hub. You can edit and Save.");
+    localStorage.removeItem("sf_mealplan_draft");
+
+    newPlanBox.scrollIntoView({behavior:"smooth", block:"start"});
+    newPlanBox.style.boxShadow = "0 18px 40px rgba(34,197,94,.18)";
+    setTimeout(()=> newPlanBox.style.boxShadow = "", 1200);
+  }
+
+  btnSave.addEventListener("click", savePlan);
+  btnClear.addEventListener("click", ()=>{
+    title.value=""; content.value="";
+    clearMsgs();
+  });
+  btnAddTop.addEventListener("click", ()=>{
+    title.focus();
+    newPlanBox.scrollIntoView({behavior:"smooth", block:"start"});
+  });
+
+  window.addEventListener("DOMContentLoaded", () => {
+    loadPlans();
+    applyDraftMealPlan();
+  });
+
+})();
+</script>
+
+</body>
+</html>

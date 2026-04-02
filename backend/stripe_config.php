@@ -1,0 +1,3 @@
+<?php
+define("BASE_URL", "http://localhost/SMART_FIT");
+define("STRIPE_SECRET_KEY", getenv('STRIPE_SECRET_KEY'));

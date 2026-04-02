@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Members & Assign | Trainer</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="trainer_layout.css">
+
+  <style>
+    /* Keep Recent Assigned visible on desktop without extra scrolling */
+    .sticky-panel{ position: sticky; top: 16px; }
+    @media (max-width: 991.98px){
+      .sticky-panel{ position: static; top:auto; }
+    }
+  </style>
+</head>
+
+<body data-active="members">
+<div class="app d-flex">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">SMART FIT</div>
+    <div class="hello">Hi, <span id="trainerName">trainer</span></div>
+
+    <a class="nav-item" data-key="dashboard" href="dashboard.html">
+      <span class="nav-ico chip-sky"><i class="bi bi-speedometer2"></i></span>
+      <span class="nav-label">Dashboard</span>
+    </a>
+
+    <a class="nav-item" data-key="members" href="members.html">
+      <span class="nav-ico chip-violet"><i class="bi bi-people"></i></span>
+      <span class="nav-label">Members & Assign</span>
+    </a>
+
+    <a class="nav-item" data-key="workouts" href="manage_workouts.html">
+      <span class="nav-ico chip-amber"><i class="bi bi-activity"></i></span>
+      <span class="nav-label">Workouts</span>
+    </a>
+
+    <a class="nav-item" data-key="progress" href="member_progress.html">
+      <span class="nav-ico chip-teal"><i class="bi bi-graph-up"></i></span>
+      <span class="nav-label">Progress</span>
+    </a>
+
+    <a class="nav-item" data-key="mealplans" href="meal_plans.html">
+      <span class="nav-ico chip-green"><i class="bi bi-egg-fried"></i></span>
+      <span class="nav-label">Meal Plans</span>
+    </a>
+
+    <a class="nav-item" data-key="profile" href="profile.html">
+      <span class="nav-ico chip-blue"><i class="bi bi-person"></i></span>
+      <span class="nav-label">Profile</span>
+    </a>
+
+    <a class="nav-item" data-key="nutrition" href="nutrition.html">
+      <span class="nav-ico chip-red"><i class="bi bi-apple"></i></span>
+      <span class="nav-label">Nutrition</span>
+    </a>
+
+    <a class="nav-item" data-key="schedule" href="schedule.html">
+      <span class="nav-ico chip-indigo"><i class="bi bi-calendar2-week"></i></span>
+      <span class="nav-label">Schedule</span>
+    </a>
+
+    <a class="nav-item" data-key="notifications" href="notifications.html">
+      <span class="nav-ico chip-amber"><i class="bi bi-bell"></i></span>
+      <span class="nav-label">Notifications</span>
+      <span class="badge bg-danger ms-auto d-none" id="notifBadge">0</span>
+    </a>
+
+    <a class="nav-item mt-auto" href="../index.html">
+      <span class="nav-ico chip-gray"><i class="bi bi-globe"></i></span>
+      <span class="nav-label">Back to Website</span>
+    </a>
+
+    <button class="btn btn-logout mt-3" id="btnLogout">
+      <i class="bi bi-box-arrow-right me-2"></i>Logout
+    </button>
+
+    <div class="side-footer">
+      <div class="mini-title">Trainer Panel</div>
+      <div class="mini">Smart Fit • v1.0</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main flex-grow-1">
+
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div>
+        <h3 class="mb-1 d-flex align-items-center gap-2">
+          <span class="chip chip-violet"><i class="bi bi-people"></i></span>
+          Members & Assign
+        </h3>
+        <div class="subtitle">Search members and assign workouts</div>
+      </div>
+
+      <div class="d-flex gap-2">
+        <a class="btn btn-outline-dark btn-pill" href="manage_workouts.html">
+          <i class="bi bi-activity me-2"></i>Workouts
+        </a>
+        <a class="btn btn-dark btn-pill" href="meal_plans.html">
+          <i class="bi bi-egg-fried me-2"></i>Meal Plans
+        </a>
+      </div>
+    </div>
+
+    <!-- Layout: list (left) + recent (right) -->
+    <div class="row g-3 mt-3">
+
+      <!-- Left: Search + Members list -->
+      <div class="col-12 col-lg-7">
+        <div class="card-soft p-3 h-100">
+          <div class="fw-bold mb-2"><i class="bi bi-search me-2"></i>Search</div>
+
+          <div class="row g-2 align-items-center">
+            <div class="col-lg-6">
+              <input id="q" class="form-control" placeholder="Search name/email..." />
+            </div>
+            <div class="col-lg-3">
+              <button class="btn btn-outline-dark btn-pill w-100" id="btnSearch">
+                <i class="bi bi-search me-2"></i>Search
+              </button>
+            </div>
+            <div class="col-lg-3">
+              <button class="btn btn-dark btn-pill w-100" id="btnReload">
+                <i class="bi bi-arrow-clockwise me-2"></i>Reload
+              </button>
+            </div>
+          </div>
+
+          <div class="table-responsive mt-3">
+            <table class="table table-sm mb-0 align-middle">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Member</th>
+                  <th>Email</th>
+                  <th style="width:220px;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="rows">
+                <tr><td colspan="4" class="subtitle">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Recent assignments -->
+      <div class="col-12 col-lg-5">
+        <div class="card-soft p-3 sticky-panel">
+          <div class="fw-bold mb-2">
+            <i class="bi bi-clock-history me-2"></i>Recent Assigned Workouts
+            <span class="subtitle">(latest 10)</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-sm mb-0 align-middle">
+              <thead>
+                <tr>
+                  <th style="width:70px;">ID</th>
+                  <th>Member</th>
+                  <th>Workout</th>
+                  <th>Status</th>
+                  <th>Assigned</th>
+                </tr>
+              </thead>
+              <tbody id="recentRows">
+                <tr><td colspan="5" class="subtitle">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<!-- Assign Modal -->
+<div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" style="border-radius:16px;">
+      <div class="modal-header">
+        <h5 class="modal-title">Assign Workout</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="alert alert-info py-2 mb-3">
+          Member: <b id="mName">-</b> (<span id="mEmail">-</span>)
+        </div>
+
+        <div class="row g-2">
+          <div class="col-md-8">
+            <label class="form-label fw-semibold">Workout</label>
+            <select id="workoutSel" class="form-select"></select>
+            <div class="subtitle mt-1" id="workoutMeta">Select a workout</div>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Status</label>
+            <input class="form-control" value="assigned" readonly />
+          </div>
+        </div>
+
+        <!-- AI Suggested Workouts -->
+        <div class="mt-3 p-3 border rounded-3" id="aiBox" style="display:none;">
+          <div class="fw-bold mb-2">🤖 AI Suggested Workouts</div>
+          <div class="subtitle mb-2" id="aiMeta">Loading AI...</div>
+          <div id="aiList" class="d-grid gap-2"></div>
+        </div>
+
+        <div class="alert alert-danger py-2 mt-3 d-none" id="assignErr"></div>
+        <div class="alert alert-success py-2 mt-3 d-none" id="assignOk"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline-dark btn-pill" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-dark btn-pill" id="btnAssign">
+          <i class="bi bi-plus-circle me-2"></i>Assign
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+/* Config */
+const API = {
+  me: "../../backend/trainer_me.php",
+  members: "../../backend/trainer_members_list.php",
+  workouts: "../../backend/get_workouts.php",
+  assign: "../../backend/trainer_assign_workout.php",
+  recent: "../../backend/trainer_recent_assignments.php",
+  logout: "../../backend/logout.php",
+  trainerAI: "../../backend/trainer_ai_suggest.php" // ?member_id=ID
+};
+
+/* Helpers */
+const el = (id)=>document.getElementById(id);
+const show = (x)=>x.classList.remove("d-none");
+const hide = (x)=>x.classList.add("d-none");
+
+function badgeStatus(s){
+  s=(s||"").toLowerCase();
+  if(s==="completed") return `<span class="badge bg-success">completed</span>`;
+  if(s==="started") return `<span class="badge bg-primary">started</span>`;
+  return `<span class="badge bg-warning text-dark">assigned</span>`;
+}
+
+async function jget(url){
+  const r = await fetch(url, {credentials:"include"});
+  const d = await r.json().catch(()=>({ok:false,message:"Bad JSON"}));
+  if(!r.ok) throw new Error(d.message || "Request failed");
+  return d;
+}
+
+async function jpost(url, body){
+  const r = await fetch(url, {
+    method:"POST",
+    credentials:"include",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify(body)
+  });
+  const d = await r.json().catch(()=>({ok:false,message:"Bad JSON"}));
+  if(!r.ok) throw new Error(d.message || "Request failed");
+  return d;
+}
+
+/* State */
+let CURRENT_MEMBER = null;
+let ALL_WORKOUTS = [];
+
+/* Load trainer name */
+async function loadMe(){
+  try{
+    const d = await jget(API.me);
+    if(d.ok){
+      el("trainerName").textContent = d.trainer?.name || "trainer";
+    }
+  }catch(e){}
+}
+
+/* Members list */
+async function loadMembers(q=""){
+  el("rows").innerHTML = `<tr><td colspan="4" class="subtitle">Loading...</td></tr>`;
+  try{
+    const url = API.members + (q?`?q=${encodeURIComponent(q)}`:"");
+    const d = await jget(url);
+    const members = d.members || [];
+    if(!members.length){
+      el("rows").innerHTML = `<tr><td colspan="4" class="subtitle">No members</td></tr>`;
+      return;
+    }
+    el("rows").innerHTML = members.map((m,idx)=>`
+      <tr>
+        <td>${idx+1}</td>
+        <td class="fw-semibold">${m.name || "-"}</td>
+        <td class="subtitle">${m.email || "-"}</td>
+        <td>
+          <button class="btn btn-dark btn-pill btn-sm me-2"
+            onclick="openAssign(${m.id}, '${(m.name||"").replace(/'/g,"\\'")}', '${(m.email||"").replace(/'/g,"\\'")}')">
+            <i class="bi bi-plus-circle me-1"></i>Assign Workout
+          </button>
+          <a class="btn btn-outline-dark btn-pill btn-sm" href="progress.html?member_id=${m.id}">
+            <i class="bi bi-graph-up me-1"></i>Progress
+          </a>
+        </td>
+      </tr>
+    `).join("");
+  }catch(e){
+    el("rows").innerHTML = `<tr><td colspan="4" class="text-danger">Failed: ${e.message}</td></tr>`;
+  }
+}
+
+/* Workouts list (for dropdown) */
+async function loadWorkouts(){
+  try{
+    const d = await jget(API.workouts);
+    ALL_WORKOUTS = d.workouts || d.data || [];
+  }catch(e){
+    ALL_WORKOUTS = [];
+  }
+}
+
+/* ✅ Recent assignments (FIXED: your API returns items[]) */
+async function loadRecent(){
+  el("recentRows").innerHTML = `<tr><td colspan="5" class="subtitle">Loading...</td></tr>`;
+  try{
+    const d = await jget(API.recent);
+
+    // your backend: { ok:true, items:[...] }
+    const rows = d.items || d.rows || d.assignments || [];
+
+    if(!rows.length){
+      el("recentRows").innerHTML = `<tr><td colspan="5" class="subtitle">No recent assignments</td></tr>`;
+      return;
+    }
+
+    el("recentRows").innerHTML = rows.map(r=>`
+      <tr>
+        <td class="fw-semibold">${r.id ?? "-"}</td>
+        <td class="subtitle">${r.member_name || r.member_email || "-"}</td>
+        <td class="fw-semibold">${r.workout_title || "-"}</td>
+        <td>${badgeStatus(r.status)}</td>
+        <td class="subtitle">${r.assigned_at || r.created_at || "-"}</td>
+      </tr>
+    `).join("");
+  }catch(e){
+    el("recentRows").innerHTML = `<tr><td colspan="5" class="text-danger">Failed: ${e.message}</td></tr>`;
+  }
+}
+
+/* Assign Modal + AI suggestion */
+const modal = new bootstrap.Modal(document.getElementById("assignModal"));
+
+window.openAssign = async function(memberId, name, email){
+  CURRENT_MEMBER = { id: memberId, name, email };
+  el("mName").textContent = name || "-";
+  el("mEmail").textContent = email || "-";
+
+  hide(el("assignErr"));
+  hide(el("assignOk"));
+
+  if(!ALL_WORKOUTS.length) await loadWorkouts();
+
+  const sel = el("workoutSel");
+  if(!ALL_WORKOUTS.length){
+    sel.innerHTML = `<option value="">No workouts</option>`;
+  }else{
+    sel.innerHTML = ALL_WORKOUTS.map(w=>`
+      <option value="${w.id}">
+        ${w.title} • ${w.level} • ${w.duration_min}m • ${w.calories}cal
+      </option>
+    `).join("");
+  }
+  updateWorkoutMeta();
+
+  await loadTrainerAI(memberId);
+  modal.show();
+}
+
+function updateWorkoutMeta(){
+  const id = parseInt(el("workoutSel").value||"0",10);
+  const w = ALL_WORKOUTS.find(x=>parseInt(x.id,10)===id);
+  el("workoutMeta").textContent = w
+    ? `Level: ${w.level} • Duration: ${w.duration_min} min • Calories: ${w.calories}`
+    : "Select a workout";
+}
+
+el("workoutSel").addEventListener("change", updateWorkoutMeta);
+
+async function loadTrainerAI(memberId){
+  const aiBox = el("aiBox");
+  const aiMeta = el("aiMeta");
+  const aiList = el("aiList");
+
+  aiBox.style.display = "block";
+  aiMeta.textContent = "Loading AI...";
+  aiList.innerHTML = "";
+
+  try{
+    const d = await jget(`${API.trainerAI}?member_id=${memberId}`);
+
+    aiMeta.textContent = `Plan: ${d.member_plan} • Goal: ${d.goal} • BMI: ${d.bmi ?? "N/A"}`;
+
+    const sug = d.suggestions || [];
+    if(!sug.length){
+      aiList.innerHTML = `<div class="subtitle">No AI suggestions</div>`;
+      return;
+    }
+
+    aiList.innerHTML = sug.map(s=>`
+      <button type="button" class="btn btn-outline-dark text-start rounded-4 p-3"
+        onclick="pickSuggested(${s.id})">
+        <div class="fw-bold">${s.title}</div>
+        <div class="subtitle">
+          Level: ${s.level} • ${s.duration_min}m • ${s.calories}cal •
+          Confidence: ${s.confidence}% • ${Array.isArray(s.reasons)? s.reasons.join(", "):""}
+        </div>
+      </button>
+    `).join("");
+
+  }catch(e){
+    aiMeta.textContent = "AI failed";
+    aiList.innerHTML = `<div class="text-danger small">${e.message}</div>`;
+  }
+}
+
+window.pickSuggested = function(workoutId){
+  el("workoutSel").value = String(workoutId);
+  updateWorkoutMeta();
+}
+
+/* Assign action */
+el("btnAssign").addEventListener("click", async ()=>{
+  hide(el("assignErr")); hide(el("assignOk"));
+
+  const memberId = CURRENT_MEMBER?.id || 0;
+  const workoutId = parseInt(el("workoutSel").value||"0",10);
+  if(!memberId || !workoutId){
+    el("assignErr").textContent = "Select workout";
+    show(el("assignErr"));
+    return;
+  }
+
+  try{
+    const d = await jpost(API.assign, {
+      user_id: memberId,
+      workout_id: workoutId,
+      status: "assigned"
+    });
+
+    if(d.ok){
+      el("assignOk").textContent = "Assigned successfully";
+      show(el("assignOk"));
+
+      // ✅ refresh recent list immediately
+      await loadRecent();
+
+      setTimeout(()=>modal.hide(), 650);
+    }else{
+      el("assignErr").textContent = d.message || "Assign failed";
+      show(el("assignErr"));
+    }
+  }catch(e){
+    el("assignErr").textContent = e.message;
+    show(el("assignErr"));
+  }
+});
+
+/* Search + Reload */
+el("btnSearch").addEventListener("click", ()=>{
+  loadMembers(el("q").value.trim());
+});
+el("btnReload").addEventListener("click", ()=>{
+  el("q").value = "";
+  loadMembers("");
+  loadRecent();
+});
+
+/* Logout */
+el("btnLogout").addEventListener("click", async ()=>{
+  try{ await jget(API.logout); }catch(e){}
+  location.href = "../../login.html";
+});
+
+/* Init */
+(async function init(){
+  await loadMe();
+  await loadWorkouts();
+  await loadMembers("");
+  await loadRecent();
+
+  // optional auto-refresh every 20s (safe)
+  setInterval(loadRecent, 20000);
+})();
+</script>
+
+</body>
+</html>
