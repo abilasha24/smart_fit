@@ -1,18 +1,18 @@
 <?php
-// backend/db.php
-mysqli_report(MYSQLI_REPORT_OFF);
-
 $host = "localhost";
 $user = "root";
 $pass = "";
 $db   = "smart_fit";
-$port = 3306;
 
-$conn = new mysqli($host, $user, $pass, $db, $port);
+$conn = new mysqli($host, $user, $pass, $db);
 
 if ($conn->connect_error) {
   http_response_code(500);
-  die("DB connection failed: " . $conn->connect_error);
+  die(json_encode([
+    "status" => "error",
+    "message" => "DB connection failed"
+  ]));
 }
 
 $conn->set_charset("utf8mb4");
+?>
