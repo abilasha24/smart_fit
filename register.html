@@ -629,7 +629,16 @@
 
       try {
         const res = await fetch("backend/register.php", { method: "POST", body: data });
-        const json = await res.json();
+        const text = await res.text();
+console.log("RAW RESPONSE:", text);
+
+let json;
+try {
+  json = JSON.parse(text);
+} catch (e) {
+  alert("Backend error. Console check pannunga.");
+  return;
+}
 
         if (json.status !== "success") {
           alert(json.message || "Register failed");
