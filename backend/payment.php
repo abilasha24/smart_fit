@@ -1,12 +1,14 @@
 <?php
 session_start();
-header("Content-Type: application/json");
+header("Content-Type: application/json; charset=UTF-8");
 
 require_once __DIR__ . "/db.php";
 require_once __DIR__ . "/stripe_config.php";
 require_once __DIR__ . "/../vendor/autoload.php";
 
 \Stripe\Stripe::setApiKey(STRIPE_SECRET_KEY);
+
+define("BASE_URL", "https://smartfit-production-09cf.up.railway.app");
 
 $user_id = (int)($_SESSION["user_id"] ?? 0);
 $email   = $_SESSION["email"] ?? "";
@@ -15,10 +17,7 @@ $plan  = strtolower(trim($_POST["plan"] ?? ""));
 $cycle = strtolower(trim($_POST["cycle"] ?? "monthly"));
 
 if ($user_id <= 0 || $email === "" || !in_array($plan, ["premium","pro"])) {
-    echo json_encode([
-        "ok" => false,
-        "message" => "Login required or invalid plan"
-    ]);
+    echo json_encode(["ok"=>false,"message"=>"Login required or invalid plan"]);
     exit;
 }
 
@@ -29,8 +28,6 @@ $planMap = [
 
 $amount = $planMap[$plan];
 $unitAmount = $amount * 100;
-
-$order_id = "SF-" . time();
 
 try {
 
@@ -60,10 +57,12 @@ try {
         "ok" => true,
         "checkout_url" => $session->url
     ]);
+    exit;
 
 } catch (Exception $e) {
     echo json_encode([
         "ok" => false,
         "message" => $e->getMessage()
     ]);
+    exit;
 }
