@@ -2,7 +2,7 @@
 // backend/test_start.php
 $payload = json_encode(["workout_id" => 1]);
 
-$ch = curl_init("http://localhost/SMART_FIT/backend/start_workout.php");
+$ch = curl_init("http://localhost/backend/start_workout.php");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);

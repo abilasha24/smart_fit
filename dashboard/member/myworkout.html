@@ -314,7 +314,7 @@
 
 <script>
   // ✅ IMPORTANT: Your project folder is SMART_FIT (CAPS)
-  const API_BASE = "/SMART_FIT/backend";
+  const API_BASE = "/backend";
 
   const rowsEl = document.getElementById("rows");
   const statusTop = document.getElementById("statusTop");
@@ -376,7 +376,7 @@
       statusTop.textContent = "⏳ Loading...";
       showMsg("");
 
-      // ✅ This must exist: /SMART_FIT/backend/my_workouts.php
+      // ✅ This must exist: /backend/my_workouts.php
       const res = await fetch(API_BASE + "/my_workouts.php", { credentials:"include" });
       const data = await safeJson(res);
 
