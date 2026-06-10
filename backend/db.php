@@ -2,7 +2,7 @@
 $host = getenv('MYSQLHOST')     ?: 'localhost';
 $user = getenv('MYSQLUSER')     ?: 'root';
 $pass = getenv('MYSQLPASSWORD') ?: '';
-$db   = getenv('MYSQLDATABASE') ?: 'smart_fit';
+$db   = getenv('MYSQLDATABASE') ?: 'SMART_FIT';
 $port = (int)(getenv('MYSQLPORT') ?: 3306);
 
 $conn = new mysqli($host, $user, $pass, $db, $port);
